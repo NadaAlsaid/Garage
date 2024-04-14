@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background_color"
+    tools:context=".Spot_Availability">
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/spot_list_rv"
+        android:layout_width="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp" />
+
+    <nl.joery.animatedbottombar.AnimatedBottomBar
+        android:id="@+id/bottom_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/background_color"
+        app:abb_indicatorAppearance="round"
+        app:abb_indicatorColor="#FFFFFF"
+        app:abb_indicatorHeight="4dp"
+        app:abb_indicatorMargin="16dp"
+        app:abb_rippleEnabled="true"
+        app:abb_selectedTabType="icon"
+        app:abb_tabColor="#FFFCFC"
+        app:abb_tabColorSelected="#FFFFFF"
+        app:abb_tabs="@menu/menu"
+        app:abb_textStyle="bold" />
+</RelativeLayout>

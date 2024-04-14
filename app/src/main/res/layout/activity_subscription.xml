@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background_color"
+    tools:context=".Subscription">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:textSize="20sp"
+        android:text="You stop at 2 slot"
+        android:textStyle="bold"
+        android:transformPivotY="233dp"
+        android:paddingTop="70dp"
+        android:paddingBottom="70dp"
+        android:id="@+id/placeParking"
+        android:textColor="@color/white"
+        />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:textSize="20sp"
+        android:text="* Price 👉🏼 3$ per minute *"
+        android:textStyle="bold"
+        android:layout_alignBottom="@+id/placeParking"
+        android:id="@+id/PricePerMinute"
+        android:textColor="@color/white"
+        />
+
+    <TextView
+        android:id="@+id/TotalPrice"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Total Price : 20$ 👌"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_centerInParent="true"/>
+
+    <nl.joery.animatedbottombar.AnimatedBottomBar
+        android:id="@+id/bottom_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/background_color"
+        app:abb_indicatorAppearance="round"
+        app:abb_indicatorColor="#FFFFFF"
+        app:abb_indicatorHeight="4dp"
+        app:abb_indicatorMargin="16dp"
+        app:abb_rippleEnabled="true"
+        app:abb_selectedTabType="icon"
+        app:abb_tabColor="#FFFCFC"
+        app:abb_tabColorSelected="#FFFFFF"
+        app:abb_tabs="@menu/menu"
+        app:abb_textStyle="bold" />
+</RelativeLayout>
