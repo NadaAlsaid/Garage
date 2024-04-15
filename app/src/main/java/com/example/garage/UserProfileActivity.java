@@ -110,9 +110,9 @@ public class UserProfileActivity extends AppCompatActivity {
                         if(url != null) {
                             profileImageUri = Uri.parse(url) ;
 
-//                            profileImageView.setImageURI(profileImageUri);
+                            profileImageView.setImageURI(profileImageUri);
                         }
-                        Toast.makeText(getApplicationContext() , "heeeeeeeelp" , Toast.LENGTH_LONG).show();
+//                        Toast.makeText(getApplicationContext() , "heeeeeeeelp" , Toast.LENGTH_LONG).show();
                     }
                     progressBar.setVisibility(View.GONE);
                 }
@@ -162,6 +162,7 @@ public class UserProfileActivity extends AppCompatActivity {
         intent.setAction(Intent.ACTION_PICK);
         startActivityForResult(intent, RC_CHOOSE_IMAGE);
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

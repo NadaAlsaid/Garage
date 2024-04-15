@@ -226,7 +226,7 @@
                     app:backgroundTint="@null"
                     app:icon="@drawable/google"
                     app:iconGravity="textEnd"
-                    app:iconTint="@color/black" />
+                    app:iconTint="@color/white" />
             </LinearLayout>
             <TextView
                 android:id="@+id/textView_register"
