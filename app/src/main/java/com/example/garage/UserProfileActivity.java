@@ -110,7 +110,7 @@ public class UserProfileActivity extends AppCompatActivity {
                         if(url != null) {
                             profileImageUri = Uri.parse(url) ;
 
-                            profileImageView.setImageURI(profileImageUri);
+//                            profileImageView.setImageURI(profileImageUri);
                         }
 //                        Toast.makeText(getApplicationContext() , "heeeeeeeelp" , Toast.LENGTH_LONG).show();
                     }
