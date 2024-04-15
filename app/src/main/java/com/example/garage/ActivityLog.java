@@ -14,11 +14,18 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import nl.joery.animatedbottombar.AnimatedBottomBar;
 
 public class ActivityLog extends AppCompatActivity {
     AnimatedBottomBar animatedBottomBar ;
+    private List<Logs> logs;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,6 +37,18 @@ public class ActivityLog extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        RecyclerView recyclerView = findViewById(R.id.logview);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+
+        logs = new ArrayList<>();
+        logs.add(new Logs("Check spots availability", "12:00"));
+        logs.add(new Logs("Open garage door", "12:04"));
+        logs.add(new Logs("Close garage door", "12:05"));
+        logs.add(new Logs("Check Temperature", "01:00"));
+        logs.add(new Logs("Subscriptions", "02:00"));
+        LogAdapter adapter = new LogAdapter(this, logs);
+
+        recyclerView.setAdapter(adapter);
         EditText searc = (EditText) findViewById(R.id.search) ;
         searc.addTextChangedListener(new TextWatcher() {
             @Override

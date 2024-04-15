@@ -52,4 +52,21 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         return cursor;
 
     }
+    public boolean checkEmail(String email)
+    {
+        SQLiteDatabase db=this.getWritableDatabase();
+        Cursor cursor = db.rawQuery("select * from "+ TABLE_NAME +  " where " + COLUMN_EMAIL+ "=? "  , new String[]{email});
+        if(cursor.getCount()>0)
+            return true;
+        else
+            return false;
+
+    }
+    public Cursor checkPasswordAndEmail(String email, String password)
+    {
+        SQLiteDatabase db=this.getWritableDatabase();
+        Cursor cursor = db.rawQuery("select USER_ID INTEGER from "+ TABLE_NAME +  " where " + COLUMN_EMAIL+ "=? " + " and " + COLUMN_PWD + " =? "  , new String[]{email,password});
+        return cursor;
+    }
+
 }

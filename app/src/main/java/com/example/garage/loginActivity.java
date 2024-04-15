@@ -2,6 +2,7 @@ package com.example.garage;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Patterns;
@@ -29,8 +30,10 @@ public class loginActivity extends AppCompatActivity {
     EditText editTextLoginEmail, editTextLoginPwd;
     ProgressBar progressBar;
     CheckBox rememberME;
+    Button google ;
     Button register_btn , login_btn;
     private FirebaseAuth authProfile;
+    MyDatabaseHelper userDatabase ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,10 +49,9 @@ public class loginActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         rememberME =findViewById(R.id.checkbox_remember_me);
         register_btn = findViewById(R.id.register_link);
-        login_btn = findViewById(R.id.button_login);
-
+        google = findViewById(R.id.google) ;
 //        getSupportActionBar().setTitle("Login");
-
+        userDatabase = new MyDatabaseHelper(this);
         authProfile = FirebaseAuth.getInstance();
 
         SharedPreferences preferences =getSharedPreferences("checkedbox",MODE_PRIVATE);
@@ -68,7 +70,7 @@ public class loginActivity extends AppCompatActivity {
             }
         });
         Button buttonLogin = findViewById(R.id.button_login);
-        buttonLogin.setOnClickListener(new View.OnClickListener() {
+        google.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String textEmail = editTextLoginEmail.getText().toString();
@@ -113,6 +115,40 @@ public class loginActivity extends AppCompatActivity {
                     editor.apply();
                     Toast.makeText(loginActivity.this, "UnChecked ", Toast.LENGTH_SHORT).show();
 
+                }
+            }
+        });
+
+        buttonLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String mail = editTextLoginEmail.getText().toString() ;
+                String pass = editTextLoginPwd.getText().toString() ;
+                if(!mail.equals("") && !pass.equals("")) {
+
+                    Cursor checkPasswordAndEmail = userDatabase.checkPasswordAndEmail(mail, pass);
+                    checkPasswordAndEmail.moveToNext();
+
+                    if (checkPasswordAndEmail.getCount()>0) {
+
+                        Intent intent= new Intent(getApplicationContext() , HomeActivity.class) ;
+                        finish();
+                        startActivity(intent);
+                    }else {
+                        editTextLoginEmail.setText("");
+                        editTextLoginPwd.setText("");
+                        Toast.makeText(getApplicationContext(), "Your Email or Password is wrong ", Toast.LENGTH_LONG).show();
+                    }
+                }else{
+                    if(mail.equals("") ) {
+                        editTextLoginEmail.setError("Valid email is required");
+                        editTextLoginEmail.requestFocus();
+                    }
+                    else {
+
+                        editTextLoginPwd.setError("password is required");
+                        editTextLoginPwd.requestFocus();
+                    }
                 }
             }
         });
