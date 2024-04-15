@@ -20,6 +20,8 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_GENDER = "gender";
     public static final String COLUMN_PWD = "password"; // Consider hashing before storing
     public static final String COLUMN_PIC_URL = "pic_url";
+
+    public static final String COLUMN_USER_ID_FIREBASE = "id_firebase";
     public MyDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -34,7 +36,8 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
                 COLUMN_MOBILE + " TEXT, " +
                 COLUMN_GENDER + " TEXT, " +
                 COLUMN_PWD + " TEXT ," +
-                COLUMN_PIC_URL + " TEXT " +")";
+                COLUMN_PIC_URL + " TEXT ," +
+                COLUMN_USER_ID_FIREBASE + " TEXT " + ")";
         db.execSQL(createTableQuery);
     }
 

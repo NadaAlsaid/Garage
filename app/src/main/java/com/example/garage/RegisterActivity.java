@@ -240,40 +240,42 @@ public class RegisterActivity extends AppCompatActivity {
 
                     //enter user info to database
                     UserModel writeUserDetails = new UserModel(textfullName , textUserName , textEmail,textDoB  , textGender, textMobile , textPwd ,FirebaseUtil.currentUserId() , url);
-                    getUsername(writeUserDetails);
-                    saveUserToLocalCache(textfullName , textUserName , textEmail,textDoB , textGender , textMobile , textPwd,url);
+                    setUsername(writeUserDetails);
 
                 }else{
                     progressBar.setVisibility(View.GONE);
-                    Toast.makeText(RegisterActivity.this, "User registered failed  ", Toast.LENGTH_LONG).show();
+                    Toast.makeText(RegisterActivity.this, "User registered failed on firebase ", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+        if (FirebaseUtil.currentUserId() != null )
+            saveUserToLocalCache(textfullName , textUserName , textEmail,textDoB , textGender , textMobile , textPwd,url ,FirebaseUtil.currentUserId());
+        else
+            saveUserToLocalCache(textfullName , textUserName , textEmail,textDoB , textGender , textMobile , textPwd,url , null);
+
+    }
+
+    private void setUsername( UserModel userModel ){
+
+        FirebaseUtil.currentUserDetails().set(userModel).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+
+                if(task.isSuccessful()){
+                    Toast.makeText(getApplicationContext() , "well done!" , Toast.LENGTH_LONG).show();
+                    Intent intent = new Intent(RegisterActivity.this, loginActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                    finish();
+                }else{
+                    Toast.makeText(RegisterActivity.this, "Check your network connection", Toast.LENGTH_LONG).show();
                 }
             }
         });
 
-
     }
 
-    private void getUsername( UserModel userModel ){
-
-            FirebaseUtil.currentUserDetails().set(userModel).addOnCompleteListener(new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
-
-                    if(task.isSuccessful()){
-                        Toast.makeText(getApplicationContext() , "well done!" , Toast.LENGTH_LONG).show();
-                        Intent intent = new Intent(RegisterActivity.this, loginActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(intent);
-                        finish();
-                    }else{
-                        Toast.makeText(RegisterActivity.this, " failed  ", Toast.LENGTH_LONG).show();
-                    }
-                }
-            });
-
-    }
-
-    private void saveUserToLocalCache(String textfullName,String textUserName, String textEmail, String textDoB, String textGender, String textMobile, String textPwd, String url){
+    private void saveUserToLocalCache(String textfullName,String textUserName, String textEmail, String textDoB, String textGender, String textMobile, String textPwd, String url , String firebase_id){
 
         MyDatabaseHelper helper = new MyDatabaseHelper(this);
         SQLiteDatabase db = helper.getWritableDatabase();
@@ -286,6 +288,7 @@ public class RegisterActivity extends AppCompatActivity {
         values.put(MyDatabaseHelper.COLUMN_GENDER, textGender);
         values.put(MyDatabaseHelper.COLUMN_PWD, textPwd);
         values.put(MyDatabaseHelper.COLUMN_PIC_URL, url);
+        values.put(MyDatabaseHelper.COLUMN_USER_ID_FIREBASE, firebase_id);
         db.insert(MyDatabaseHelper.TABLE_NAME, null, values);
         db.close();
     }
