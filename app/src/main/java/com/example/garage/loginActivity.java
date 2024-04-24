@@ -1,8 +1,13 @@
 package com.example.garage;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkRequest;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Patterns;
@@ -16,6 +21,7 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -25,13 +31,16 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 
 public class loginActivity extends AppCompatActivity {
     EditText editTextLoginEmail, editTextLoginPwd;
     ProgressBar progressBar;
+    boolean isNetworkConnected = false;
+    UserModel readUserDetails;
     CheckBox rememberME;
     Button google ;
-    Button register_btn , login_btn;
+    Button register_btn ;
     private FirebaseAuth authProfile;
     MyDatabaseHelper userDatabase ;
     @Override
@@ -50,7 +59,7 @@ public class loginActivity extends AppCompatActivity {
         rememberME =findViewById(R.id.checkbox_remember_me);
         register_btn = findViewById(R.id.register_link);
         google = findViewById(R.id.google) ;
-//        getSupportActionBar().setTitle("Login");
+
         userDatabase = new MyDatabaseHelper(this);
         authProfile = FirebaseAuth.getInstance();
 
@@ -122,32 +131,56 @@ public class loginActivity extends AppCompatActivity {
         buttonLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 String mail = editTextLoginEmail.getText().toString() ;
                 String pass = editTextLoginPwd.getText().toString() ;
-                if(!mail.equals("") && !pass.equals("")) {
+                LoginNetworkCallback();
+                if (isNetworkConnected){
+                    readUserDetails = new UserModel();
+                    FirebaseUtil.currentUserDetails().get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if(task.isSuccessful()){
+                                readUserDetails =  task.getResult().toObject(UserModel.class);
+                                if(readUserDetails!=null){
+                                   if( readUserDetails.getTextEmail().equals(mail)  && pass.equals( readUserDetails.getTextPwd())){
+                                       Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+                                       finish();
+                                       startActivity(intent);
+                                   }
 
-                    Cursor checkPasswordAndEmail = userDatabase.checkPasswordAndEmail(mail, pass);
-                    checkPasswordAndEmail.moveToNext();
+                                }
+                                progressBar.setVisibility(View.GONE);
+                            }
+                        }
+                    });
 
-                    if (checkPasswordAndEmail.getCount()>0) {
 
-                        Intent intent= new Intent(getApplicationContext() , HomeActivity.class) ;
-                        finish();
-                        startActivity(intent);
-                    }else {
-                        editTextLoginEmail.setText("");
-                        editTextLoginPwd.setText("");
-                        Toast.makeText(getApplicationContext(), "Your Email or Password is wrong ", Toast.LENGTH_LONG).show();
-                    }
-                }else{
-                    if(mail.equals("") ) {
-                        editTextLoginEmail.setError("Valid email is required");
-                        editTextLoginEmail.requestFocus();
-                    }
-                    else {
+                }else {
+                    if (!mail.equals("") && !pass.equals("")) {
 
-                        editTextLoginPwd.setError("password is required");
-                        editTextLoginPwd.requestFocus();
+                        Cursor checkPasswordAndEmail = userDatabase.checkPasswordAndEmail(mail, pass);
+                        checkPasswordAndEmail.moveToNext();
+
+                        if (checkPasswordAndEmail.getCount() > 0) {
+
+                            Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+                            finish();
+                            startActivity(intent);
+                        } else {
+                            editTextLoginEmail.setText("");
+                            editTextLoginPwd.setText("");
+                            Toast.makeText(getApplicationContext(), "Your Email or Password is wrong ", Toast.LENGTH_LONG).show();
+                        }
+                    } else {
+                        if (mail.equals("")) {
+                            editTextLoginEmail.setError("Valid email is required");
+                            editTextLoginEmail.requestFocus();
+                        } else {
+
+                            editTextLoginPwd.setError("password is required");
+                            editTextLoginPwd.requestFocus();
+                        }
                     }
                 }
             }
@@ -163,22 +196,45 @@ public class loginActivity extends AppCompatActivity {
 
     private void loginUser(String Email,String Pwd) {
 
-           authProfile.signInWithEmailAndPassword(Email, Pwd).addOnCompleteListener(loginActivity.this,new OnCompleteListener<AuthResult>(){
-              @Override
-               public void onComplete(@NonNull Task<AuthResult> task){
-                     if (task.isSuccessful()){
-                         Toast.makeText(loginActivity.this, "you are logged in now ", Toast.LENGTH_SHORT).show();
-                         Intent intent = new Intent(getApplicationContext() , HomeActivity.class);
-                         startActivity(intent);
-                         finish();
-                     }else{
-                         Toast.makeText(loginActivity.this, "something went worng!", Toast.LENGTH_SHORT).show();
-                     }
-                        progressBar.setVisibility(View.GONE);
-              }
+        authProfile.signInWithEmailAndPassword(Email, Pwd).addOnCompleteListener(loginActivity.this,new OnCompleteListener<AuthResult>(){
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task){
+                if (task.isSuccessful()){
+                    Toast.makeText(loginActivity.this, "you are logged in now ", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(getApplicationContext() , HomeActivity.class);
+                    startActivity(intent);
+                    finish();
+                }else{
+                    Toast.makeText(loginActivity.this, "something went worng!", Toast.LENGTH_SHORT).show();
+                }
+                progressBar.setVisibility(View.GONE);
+            }
 
 
-           });
+        });
+    }
+    private void LoginNetworkCallback() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivityManager != null) {
+            NetworkRequest.Builder builder = new NetworkRequest.Builder();
+            connectivityManager.registerNetworkCallback(builder.build(), new ConnectivityManager.NetworkCallback() {
+                @RequiresApi(api = Build.VERSION_CODES.M)
+                @Override
+                public void onAvailable(@NonNull Network network) {
+                    super.onAvailable(network);
+                    isNetworkConnected = true;
+                    Toast.makeText(getApplicationContext(), "Internet connection available.", Toast.LENGTH_SHORT).show();
+                }
+
+                @RequiresApi(api = Build.VERSION_CODES.M)
+                @Override
+                public void onLost(@NonNull Network network) {
+                    super.onLost(network);
+                    isNetworkConnected = false;
+                    Toast.makeText(getApplicationContext(), "Internet connection lost.", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
     }
 
 }

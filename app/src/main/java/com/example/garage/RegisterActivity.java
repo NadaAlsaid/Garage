@@ -2,8 +2,12 @@ package com.example.garage;
 
 import android.app.DatePickerDialog;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkRequest;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -39,9 +43,11 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.auth.User;
 import com.google.firebase.storage.FirebaseStorage;
 
 import java.util.Calendar;
+import java.util.List;
 
 
 public class RegisterActivity extends AppCompatActivity {
@@ -58,7 +64,21 @@ public class RegisterActivity extends AppCompatActivity {
     Button chooseImageButton, registerButton;
     Uri profileImageUri;
     private FirebaseStorage storage;
+    MyDatabaseHelper helper = new MyDatabaseHelper(this);
 
+    boolean isNetworkConnected = false;
+
+
+
+
+    String textfullName;
+    String textUserName;
+    String textEmail ;
+    String textDoB ;
+    String textMobile ;
+    String textPwd;
+    String textConPwd ;
+    String textGender;
 
 
     @Override
@@ -129,13 +149,13 @@ public class RegisterActivity extends AppCompatActivity {
                 radioButtonRegisterGenderSelected = findViewById(selectedGenderId);
 
 
-                String textfullName = editTextRegisterFullNme.getText().toString();
-                String textUserName=editTextRegisterUserNme.getText().toString();
-                String textEmail = editTextRegisterEmail.getText().toString();
-                String textDoB = editTextRegisterDoB.getText().toString();
-                String textMobile = editTextRegisterMobil.getText().toString();
-                String textPwd = editTextRegisterPwd.getText().toString();
-                String textConPwd = editTextRegisterConfirmPwd.getText().toString();
+                textfullName = editTextRegisterFullNme.getText().toString();
+                textUserName=editTextRegisterUserNme.getText().toString();
+                textEmail = editTextRegisterEmail.getText().toString();
+                textDoB = editTextRegisterDoB.getText().toString();
+                textMobile = editTextRegisterMobil.getText().toString();
+                textPwd = editTextRegisterPwd.getText().toString();
+                textConPwd = editTextRegisterConfirmPwd.getText().toString();
                 String textGender;
 
 
@@ -207,8 +227,22 @@ public class RegisterActivity extends AppCompatActivity {
 
                 }
 
+                if (isNetworkConnected) {
+                    // Register user with Firebase
+                    textGender = radioButtonRegisterGenderSelected.getText().toString();
+                    registerUser(textfullName,textUserName,  textEmail,  textDoB,  textPwd, textGender,  textMobile,   url );
+                    registerNetworkCallback();
+                } else {
+                    // Save user information to local database
+                    textGender = radioButtonRegisterGenderSelected.getText().toString();
+                    registerUser(textfullName,textUserName,textEmail,textDoB,textPwd,textGender,textMobile , url);
+                    registerNetworkCallback();
+                    Toast.makeText(RegisterActivity.this, "No internet connection. User information saved locally.", Toast.LENGTH_LONG).show();
+                }
+
             }
         });
+
 
 
 
@@ -277,7 +311,6 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void saveUserToLocalCache(String textfullName,String textUserName, String textEmail, String textDoB, String textGender, String textMobile, String textPwd, String url , String firebase_id){
 
-        MyDatabaseHelper helper = new MyDatabaseHelper(this);
         SQLiteDatabase db = helper.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(MyDatabaseHelper.COLUMN_FULL_NAME, textfullName);
@@ -292,6 +325,44 @@ public class RegisterActivity extends AppCompatActivity {
         db.insert(MyDatabaseHelper.TABLE_NAME, null, values);
         db.close();
     }
+    private void registerNetworkCallback() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivityManager != null) {
+            NetworkRequest.Builder builder = new NetworkRequest.Builder();
+            connectivityManager.registerNetworkCallback(builder.build(), new ConnectivityManager.NetworkCallback() {
+                @RequiresApi(api = Build.VERSION_CODES.M)
+                @Override
+                public void onAvailable(@NonNull Network network) {
+                    super.onAvailable(network);
+                    isNetworkConnected = true;
+                    Toast.makeText(RegisterActivity.this, "Internet connection available.", Toast.LENGTH_SHORT).show();
 
+                    // Send user information to Firebase database when internet connection is restored
+                    sendUserInfoToFirebase();
+                }
+
+                @RequiresApi(api = Build.VERSION_CODES.M)
+                @Override
+                public void onLost(@NonNull Network network) {
+                    super.onLost(network);
+                    isNetworkConnected = false;
+                    Toast.makeText(RegisterActivity.this, "Internet connection lost.", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
+
+    private void sendUserInfoToFirebase() {
+        // Retrieve saved user information from the local database
+        List<UserModel> userList = helper.getAllUsers();
+
+        // Iterate through the user list and send each user's information to Firebase database
+        for (UserModel user : userList) {
+            registerUser(textfullName,textUserName,textEmail,textDoB,textPwd,textGender,textMobile , url);
+        }
+
+//        // Clear the local database after sending the user information to Firebase
+//        helper.deleteAllUsers();
+    }
 
 }

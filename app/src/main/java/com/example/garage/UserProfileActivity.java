@@ -1,7 +1,11 @@
 package com.example.garage;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -32,16 +36,17 @@ import nl.joery.animatedbottombar.AnimatedBottomBar;
 
 
 public class UserProfileActivity extends AppCompatActivity {
-    private TextView textViewWelcome,textViewFullName,textViewEmail,textViewDoB, textViewGender, textViewMobile;
+    private TextView textViewWelcome, textViewFullName, textViewEmail, textViewDoB, textViewGender, textViewMobile;
     private ProgressBar progressBar;
-    private String fullName,email,doB,gender,mobile, url;
-    private ImageView profileImageView  ;
+    private String fullName, email, doB, gender, mobile, url;
+    private ImageView profileImageView;
     private Button logoutButton;
-    AnimatedBottomBar animatedBottomBar ;
+    AnimatedBottomBar animatedBottomBar;
     @RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     private static final int RC_CHOOSE_IMAGE = 101;
     Uri profileImageUri;
-    UserModel readUserDetails ;
+    UserModel readUserDetails;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,12 +57,12 @@ public class UserProfileActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        textViewWelcome=findViewById(R.id.textView_show_welcome);
-        textViewFullName=findViewById(R.id.textView_show_full_name);
-        textViewEmail=findViewById(R.id.textView_show_email);
-        textViewDoB=findViewById(R.id.textView_show_dob);
-        textViewGender=findViewById(R.id.textView_show_gender);
-        textViewMobile=findViewById(R.id.textView_show_mobile);
+        textViewWelcome = findViewById(R.id.textView_show_welcome);
+        textViewFullName = findViewById(R.id.textView_show_full_name);
+        textViewEmail = findViewById(R.id.textView_show_email);
+        textViewDoB = findViewById(R.id.textView_show_dob);
+        textViewGender = findViewById(R.id.textView_show_gender);
+        textViewMobile = findViewById(R.id.textView_show_mobile);
         progressBar = findViewById(R.id.progress_bar);
         logoutButton = findViewById(R.id.logout_button);
         profileImageView = findViewById(R.id.imageView_profile_dp);
@@ -84,40 +89,50 @@ public class UserProfileActivity extends AppCompatActivity {
         showUserProfile();
 
 
-
     }
 
+//    private void showUserProfile() {
+//
+//        FirebaseUtil.currentUserDetails().get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+//            @Override
+//            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+//                if(task.isSuccessful()){
+//                    readUserDetails =  task.getResult().toObject(UserModel.class);
+//                    if(readUserDetails!=null){
+//                        fullName = readUserDetails.getTextfullName();
+//                        email = readUserDetails.getTextEmail();
+//                        doB = readUserDetails.getTextDoB();
+//                        gender = readUserDetails.getTextGender();
+//                        mobile = readUserDetails.getTextMobile();
+//                        String url = readUserDetails.getUrl() ;
+//                        textViewWelcome.setText("welcome, " + readUserDetails.getTextUserName() + " !");
+//                        textViewFullName.setText(fullName);
+//                        textViewEmail.setText(email);
+//                        textViewDoB.setText(doB);
+//                        textViewGender.setText(gender);
+//                        textViewMobile.setText(mobile);
+//                        if(url != null) {
+//                            profileImageUri = Uri.parse(url) ;
+//
+////                            profileImageView.setImageURI(profileImageUri);
+//                        }
+////                        Toast.makeText(getApplicationContext() , "heeeeeeeelp" , Toast.LENGTH_LONG).show();
+//                    }
+//                    progressBar.setVisibility(View.GONE);
+//                }
+//            }
+//        });
+//
+//
+//    }
+
+
     private void showUserProfile() {
-
-        FirebaseUtil.currentUserDetails().get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if(task.isSuccessful()){
-                    readUserDetails =  task.getResult().toObject(UserModel.class);
-                    if(readUserDetails!=null){
-                        fullName = readUserDetails.getTextfullName();
-                        email = readUserDetails.getTextEmail();
-                        doB = readUserDetails.getTextDoB();
-                        gender = readUserDetails.getTextGender();
-                        mobile = readUserDetails.getTextMobile();
-                        String url = readUserDetails.getUrl() ;
-                        textViewWelcome.setText("welcome, " + readUserDetails.getTextUserName() + " !");
-                        textViewFullName.setText(fullName);
-                        textViewEmail.setText(email);
-                        textViewDoB.setText(doB);
-                        textViewGender.setText(gender);
-                        textViewMobile.setText(mobile);
-                        if(url != null) {
-                            profileImageUri = Uri.parse(url) ;
-
-//                            profileImageView.setImageURI(profileImageUri);
-                        }
-//                        Toast.makeText(getApplicationContext() , "heeeeeeeelp" , Toast.LENGTH_LONG).show();
-                    }
-                    progressBar.setVisibility(View.GONE);
-                }
-            }
-        });
+        if (isConnectedToInternet()) {
+            readUserDetailsFromFirebase();
+        } else {
+            readUserDetailsFromLocalDatabase();
+        }
         animatedBottomBar = findViewById(R.id.bottom_bar);
 
         animatedBottomBar.setOnTabSelectListener(new AnimatedBottomBar.OnTabSelectListener() {
@@ -154,6 +169,84 @@ public class UserProfileActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+
+
+
+    private boolean isConnectedToInternet() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnected();
+    }
+
+
+
+
+    private void readUserDetailsFromFirebase() {
+        FirebaseUtil.currentUserDetails().get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    readUserDetails = task.getResult().toObject(UserModel.class);
+                    if (readUserDetails != null) {
+                        fullName = readUserDetails.getTextfullName();
+                        email = readUserDetails.getTextEmail();
+                        doB = readUserDetails.getTextDoB();
+                        gender = readUserDetails.getTextGender();
+                        mobile = readUserDetails.getTextMobile();
+                        url = readUserDetails.getUrl();
+                        textViewWelcome.setText("Welcome, " + readUserDetails.getTextUserName() + "!");
+                        textViewFullName.setText(fullName);
+                        textViewEmail.setText(email);
+                        textViewDoB.setText(doB);
+                        textViewGender.setText(gender);
+                        textViewMobile.setText(mobile);
+//                        if (url != null) {
+//                            profileImageUri = Uri.parse(url);
+//                            profileImageView.setImageURI(profileImageUri);
+//                        }
+                    }
+                    progressBar.setVisibility(View.GONE);
+                }
+            }
+        });
+    }
+
+
+
+
+    private void readUserDetailsFromLocalDatabase() {
+        MyDatabaseHelper databaseHelper = new MyDatabaseHelper(this);
+        Cursor cursor = databaseHelper.get_user_info(email);
+
+        if (cursor.moveToFirst()) {
+            int fullNameIndex = cursor.getColumnIndex(MyDatabaseHelper.COLUMN_FULL_NAME);
+            int dobIndex = cursor.getColumnIndex(MyDatabaseHelper.COLUMN_DOB);
+            int genderIndex = cursor.getColumnIndex(MyDatabaseHelper.COLUMN_GENDER);
+//            int picUrlIndex = cursor.getColumnIndex(MyDatabaseHelper.COLUMN_PIC_URL);
+            int mobileIndex = cursor.getColumnIndex(MyDatabaseHelper.COLUMN_MOBILE);
+
+            fullName = cursor.getString(fullNameIndex);
+            doB = cursor.getString(dobIndex);
+            gender = cursor.getString(genderIndex);
+//            url = cursor.getString(picUrlIndex);
+            mobile = cursor.getString(mobileIndex);
+
+            textViewWelcome.setText("Welcome!");
+            textViewFullName.setText(fullName);
+            textViewEmail.setText(email);
+            textViewDoB.setText(doB);
+            textViewGender.setText(gender);
+            textViewMobile.setText(mobile);
+//            if (url != null) {
+//                profileImageUri = Uri.parse(url);
+//                profileImageView.setImageURI(profileImageUri);
+//            }
+        }
+
+        cursor.close();
+        progressBar.setVisibility(View.GONE);
     }
 
     private void ProfileImage() {

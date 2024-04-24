@@ -101,6 +101,34 @@ public class HomeActivity extends AppCompatActivity  {
         });
 
     }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        getMenuInflater().inflate(R.menu.menu,menu);
+        return true;
+    }
+    public boolean onOptionsItemSelected(MenuItem item){
+        Intent intent ;
 
+        if (item.getItemId() == R.id.tab_profile) {
+            intent = new Intent(getApplicationContext(), UserProfileActivity.class);
+            finish();
+            startActivity(intent);
+        } else if (item.getItemId() == R.id.tab_cart) {
+            intent = new Intent(getApplicationContext(), ActivityLog.class);
+            finish();
+            startActivity(intent);
+        }
+        else if (item.getItemId() == R.id.tab_logout) {
+            SharedPreferences preferences = getSharedPreferences("checkedbox", MODE_PRIVATE);
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString("remember", "false");
+            editor.apply();
+            intent = new Intent(getApplicationContext(), WelcomeActivity.class);
+            startActivity(intent);
+        }
+
+        return false;
+
+    }
 
 }
