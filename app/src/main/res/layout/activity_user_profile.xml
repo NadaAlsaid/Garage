@@ -36,8 +36,8 @@
                         android:id="@+id/imageView_profile_dp"
                         android:layout_width="160dp"
                         android:layout_height="160dp"
-                        android:contentDescription="user_display_picture"
-                        android:background="@drawable/no_profile_pic"
+                        android:outlineProvider="background"
+                        tools:srcCompat="@drawable/no_profile_pic"
                         android:scaleType="centerCrop" />
                 </androidx.cardview.widget.CardView>
                 <ProgressBar

@@ -56,7 +56,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
 
         SQLiteDatabase DB = this.getWritableDatabase();
 
-        Cursor cursor = DB.rawQuery("Select "+ COLUMN_FULL_NAME + "," + COLUMN_DOB + ", " + COLUMN_GENDER + " ,"
+        Cursor cursor = DB.rawQuery("Select "+ COLUMN_FULL_NAME + ","+ COLUMN_USER_NAME + "," + COLUMN_DOB + ", " + COLUMN_GENDER + " ,"
                 + COLUMN_PIC_URL + ", " + COLUMN_MOBILE + " , " + COLUMN_EMAIL +" from " +TABLE_NAME+" where " + COLUMN_EMAIL + " = ? ", new String[] {email});
         return cursor;
 

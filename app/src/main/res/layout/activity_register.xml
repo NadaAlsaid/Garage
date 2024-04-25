@@ -443,15 +443,16 @@
                     android:layout_below="@id/Con_pwd"
                     android:background="@drawable/border">
 
-                    <ImageView
+                    <com.google.android.material.imageview.ShapeableImageView
                         android:id="@+id/profile_image_view"
-                        android:contentDescription="profile image"
                         android:layout_width="120dp"
                         android:layout_height="120dp"
-                        android:layout_marginTop="10dp"
                         android:layout_marginBottom="10dp"
-                        android:src="@drawable/profile" />
-
+                        android:layout_marginTop="0dp"
+                        android:padding="5dp"
+                        app:srcCompat="@drawable/profile"
+                        app:strokeColor="@color/black"
+                        app:strokeWidth="5dp" />
                     <Button
                         android:id="@+id/choose_profile_image_button"
                         android:layout_width="wrap_content"

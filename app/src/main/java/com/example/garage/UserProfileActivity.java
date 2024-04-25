@@ -40,6 +40,7 @@ public class UserProfileActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private String fullName, email, doB, gender, mobile, url;
     private ImageView profileImageView;
+    String userEmail ;
     private Button logoutButton;
     AnimatedBottomBar animatedBottomBar;
     @RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
@@ -87,6 +88,41 @@ public class UserProfileActivity extends AppCompatActivity {
 
         progressBar.setVisibility(View.VISIBLE);
         showUserProfile();
+        animatedBottomBar = findViewById(R.id.bottom_bar);
+
+        animatedBottomBar.setOnTabSelectListener(new AnimatedBottomBar.OnTabSelectListener() {
+            @Override
+            public void onTabSelected(int i, @Nullable AnimatedBottomBar.Tab tab, int i1, @NonNull AnimatedBottomBar.Tab tab1) {
+                Intent intent ;
+
+                if (tab1.getId() == R.id.tab_profile) {
+                    intent = new Intent(getApplicationContext(), UserProfileActivity.class);
+                    finish();
+                    startActivity(intent);
+                } else if (tab1.getId() == R.id.tab_cart) {
+                    intent = new Intent(getApplicationContext(), ActivityLog.class);
+                    finish();
+                    startActivity(intent);
+                }
+                else if (tab1.getId() == R.id.tab_logout) {
+                    SharedPreferences preferences = getSharedPreferences("checkedbox", MODE_PRIVATE);
+                    SharedPreferences.Editor editor = preferences.edit();
+                    editor.putString("remember", "false");
+                    editor.apply();
+                    intent = new Intent(getApplicationContext(), WelcomeActivity.class);
+                    startActivity(intent);
+                }else if (tab1.getId() == R.id.tab_home) {
+                    intent = new Intent(getApplicationContext(), HomeActivity.class);
+                    finish();
+                    startActivity(intent);
+                }
+            }
+
+            @Override
+            public void onTabReselected(int i, @NonNull AnimatedBottomBar.Tab tab) {
+
+            }
+        });
 
 
     }
@@ -128,46 +164,13 @@ public class UserProfileActivity extends AppCompatActivity {
 
 
     private void showUserProfile() {
+        SharedPreferences sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+        userEmail = sharedPreferences.getString("email", "");
         if (isConnectedToInternet()) {
             readUserDetailsFromFirebase();
         } else {
             readUserDetailsFromLocalDatabase();
         }
-        animatedBottomBar = findViewById(R.id.bottom_bar);
-
-        animatedBottomBar.setOnTabSelectListener(new AnimatedBottomBar.OnTabSelectListener() {
-            @Override
-            public void onTabSelected(int i, @Nullable AnimatedBottomBar.Tab tab, int i1, @NonNull AnimatedBottomBar.Tab tab1) {
-                Intent intent ;
-
-                if (tab1.getId() == R.id.tab_profile) {
-                    intent = new Intent(getApplicationContext(), UserProfileActivity.class);
-                    finish();
-                    startActivity(intent);
-                } else if (tab1.getId() == R.id.tab_cart) {
-                    intent = new Intent(getApplicationContext(), ActivityLog.class);
-                    finish();
-                    startActivity(intent);
-                }
-                else if (tab1.getId() == R.id.tab_logout) {
-                    SharedPreferences preferences = getSharedPreferences("checkedbox", MODE_PRIVATE);
-                    SharedPreferences.Editor editor = preferences.edit();
-                    editor.putString("remember", "false");
-                    editor.apply();
-                    intent = new Intent(getApplicationContext(), WelcomeActivity.class);
-                    startActivity(intent);
-                }else if (tab1.getId() == R.id.tab_home) {
-                    intent = new Intent(getApplicationContext(), HomeActivity.class);
-                    finish();
-                    startActivity(intent);
-                }
-            }
-
-            @Override
-            public void onTabReselected(int i, @NonNull AnimatedBottomBar.Tab tab) {
-
-            }
-        });
 
     }
 
@@ -202,10 +205,10 @@ public class UserProfileActivity extends AppCompatActivity {
                         textViewDoB.setText(doB);
                         textViewGender.setText(gender);
                         textViewMobile.setText(mobile);
-//                        if (url != null) {
+                        if (url != null) {
 //                            profileImageUri = Uri.parse(url);
-//                            profileImageView.setImageURI(profileImageUri);
-//                        }
+//                            profileImageView.setImageURI(Uri.parse(url));
+                        }
                     }
                     progressBar.setVisibility(View.GONE);
                 }
@@ -217,32 +220,38 @@ public class UserProfileActivity extends AppCompatActivity {
 
 
     private void readUserDetailsFromLocalDatabase() {
+
         MyDatabaseHelper databaseHelper = new MyDatabaseHelper(this);
-        Cursor cursor = databaseHelper.get_user_info(email);
+        Toast.makeText(getApplicationContext(), userEmail, Toast.LENGTH_LONG).show();
+
+        Cursor cursor = databaseHelper.get_user_info(userEmail);
 
         if (cursor.moveToFirst()) {
             int fullNameIndex = cursor.getColumnIndex(MyDatabaseHelper.COLUMN_FULL_NAME);
+            int userNameIndex = cursor.getColumnIndex(MyDatabaseHelper.COLUMN_USER_NAME);
             int dobIndex = cursor.getColumnIndex(MyDatabaseHelper.COLUMN_DOB);
             int genderIndex = cursor.getColumnIndex(MyDatabaseHelper.COLUMN_GENDER);
-//            int picUrlIndex = cursor.getColumnIndex(MyDatabaseHelper.COLUMN_PIC_URL);
+            int picUrlIndex = cursor.getColumnIndex(MyDatabaseHelper.COLUMN_PIC_URL);
             int mobileIndex = cursor.getColumnIndex(MyDatabaseHelper.COLUMN_MOBILE);
 
             fullName = cursor.getString(fullNameIndex);
+            String userName = cursor.getString(userNameIndex);
             doB = cursor.getString(dobIndex);
             gender = cursor.getString(genderIndex);
-//            url = cursor.getString(picUrlIndex);
+            url = cursor.getString(picUrlIndex);
             mobile = cursor.getString(mobileIndex);
+            Toast.makeText(getApplicationContext(), fullName + "    " + doB +"  "+ gender + "  "+url + "   " + mobile, Toast.LENGTH_LONG).show();
+            textViewWelcome.setText("Welcome, " + userName + "!");
 
-            textViewWelcome.setText("Welcome!");
-            textViewFullName.setText(fullName);
-            textViewEmail.setText(email);
+            textViewFullName.setText(fullName );
+            textViewEmail.setText(userEmail);
             textViewDoB.setText(doB);
             textViewGender.setText(gender);
             textViewMobile.setText(mobile);
-//            if (url != null) {
+            if (url != null) {
 //                profileImageUri = Uri.parse(url);
-//                profileImageView.setImageURI(profileImageUri);
-//            }
+                profileImageView.setImageURI(Uri.parse(url));
+            }
         }
 
         cursor.close();

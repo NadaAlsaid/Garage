@@ -163,7 +163,10 @@ public class loginActivity extends AppCompatActivity {
                         checkPasswordAndEmail.moveToNext();
 
                         if (checkPasswordAndEmail.getCount() > 0) {
-
+                            SharedPreferences preferences = getSharedPreferences("MyAppPrefs",MODE_PRIVATE);
+                            SharedPreferences.Editor editor = preferences.edit();
+                            editor.putString("email", mail );
+                            editor.apply();
                             Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
                             finish();
                             startActivity(intent);
