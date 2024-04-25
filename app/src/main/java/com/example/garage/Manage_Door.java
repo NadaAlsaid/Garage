@@ -17,9 +17,34 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import nl.joery.animatedbottombar.AnimatedBottomBar;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.Bundle;
+import android.widget.CompoundButton;
+import android.widget.Switch;
+import android.widget.Toast;
+
+import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+//import nl.joery.animatedbottombar.AnimatedBottomBar;
 
 public class Manage_Door extends AppCompatActivity {
     Switch doorSwitch;
+    Boolean IsClosed = false;
     AnimatedBottomBar animatedBottomBar ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,21 +57,49 @@ public class Manage_Door extends AppCompatActivity {
             return insets;
         });
         doorSwitch = findViewById(R.id.door_status_switch);
-        boolean IsClosed = true ;
-        doorSwitch.setBackgroundResource(R.color.red);
-        doorSwitch.setChecked(false);
-        doorSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked){
-                    Toast.makeText(getApplicationContext(), "The Door is open", Toast.LENGTH_SHORT).show();
-                    doorSwitch.setBackgroundResource(R.color.teal_700);
-                }else{
-                    Toast.makeText(getApplicationContext(), "The Door is closed", Toast.LENGTH_SHORT).show();
-                    doorSwitch.setBackgroundResource(R.color.red);
+
+        if(check_connection()){
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            DatabaseReference doorRef = database.getReference("Door_status");
+            doorRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                    String value = dataSnapshot.getValue(String.class);
+                    if(value.equalsIgnoreCase("Close")){
+                        IsClosed =true;
+                        doorSwitch.setBackgroundResource(R.color.red);
+                        doorSwitch.setChecked(!(IsClosed));
+                    }else if (value.equalsIgnoreCase("open")){
+                        IsClosed = false;
+                        doorSwitch.setBackgroundResource(R.color.teal_700);
+                        doorSwitch.setChecked(!(IsClosed));
+                    }else {
+                        Toast.makeText(Manage_Door.this, "Error", Toast.LENGTH_SHORT).show();
+                    }
+                    doorSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                        @Override
+                        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                            if(isChecked){
+                                Toast.makeText(getApplicationContext(), "The Door is open", Toast.LENGTH_SHORT).show();
+                                doorSwitch.setBackgroundResource(R.color.teal_700);
+                                doorRef.setValue("open"); // Update the door's status in Firebase
+
+                            }else{
+                                Toast.makeText(getApplicationContext(), "The Door is closed", Toast.LENGTH_SHORT).show();
+                                doorSwitch.setBackgroundResource(R.color.red);
+                                doorRef.setValue("Close"); // Update the door's status in Firebase
+                            }
+                        }
+                    });
                 }
-            }
-        });
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {}
+            });
+        }else if(check_connection() == false){
+            Toast.makeText(Manage_Door.this, "Please Check your Network Connection!", Toast.LENGTH_SHORT).show();
+
+        }
         animatedBottomBar = findViewById(R.id.bottom_bar);
 
         animatedBottomBar.setOnTabSelectListener(new AnimatedBottomBar.OnTabSelectListener() {
@@ -83,5 +136,14 @@ public class Manage_Door extends AppCompatActivity {
             }
         });
 
+    }
+
+    public Boolean check_connection(){
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo= connectivityManager.getActiveNetworkInfo();
+        if (networkInfo==null){
+            return false;
+        }
+        return networkInfo.isConnected();
     }
 }
