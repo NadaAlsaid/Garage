@@ -12,12 +12,12 @@ public class SpotsDbHelper extends SQLiteOpenHelper {
 
     public static final String DATABASE_NAME = "spots.db";
     public static final int DATABASE_VERSION = 1;
-        public static final String TABLE_NAME = "spots";
-        public static final String COLUMN_Spot_ID = "spot_id";
-        public static final String COLUMN_AVAILABLE = "is_available";
-        public static final String COLUMN_USER_ID = "user_id";
-        public static final String COLUMN_TIME_IN = "time_in";
-        public static final String COLUMN_TIME_OUT = "time_out";
+    public static final String TABLE_NAME = "spots";
+    public static final String COLUMN_Spot_ID = "spot_id";
+    public static final String COLUMN_AVAILABLE = "is_available";
+    public static final String COLUMN_USER_ID = "user_id";
+    public static final String COLUMN_TIME_IN = "time_in";
+    public static final String COLUMN_TIME_OUT = "time_out";
 
     private static final String CREATE_SPOTS_TABLE = "CREATE TABLE " +
             TABLE_NAME + " (" +
@@ -67,7 +67,7 @@ public class SpotsDbHelper extends SQLiteOpenHelper {
             Boolean available = false;
             int w = cursor.getColumnIndex(COLUMN_Spot_ID);
             if (w>-1){
-                 spot_id = cursor.getInt(w);
+                spot_id = cursor.getInt(w);
             }
             int y = cursor.getColumnIndex(COLUMN_AVAILABLE);
             if (y>-1){
@@ -80,15 +80,15 @@ public class SpotsDbHelper extends SQLiteOpenHelper {
             // Assuming these additional columns exist in your Spots table
             int z = cursor.getColumnIndex(COLUMN_USER_ID);
             if (z>-1){
-                 user_id = cursor.getInt(z);  // Replace with actual column name for user ID
+                user_id = cursor.getInt(z);  // Replace with actual column name for user ID
             }
             int m = cursor.getColumnIndex(COLUMN_TIME_IN);
             if (m>-1){
-                 time_in = cursor.getString(m);  // Replace with actual column name for time_in
+                time_in = cursor.getString(m);  // Replace with actual column name for time_in
             }
             int n = cursor.getColumnIndex(COLUMN_TIME_OUT);
             if (n>-1){
-                 time_out = cursor.getString(n);  // Replace with actual column name for time_out
+                time_out = cursor.getString(n);  // Replace with actual column name for time_out
             }
 
             Spot s= new Spot();
