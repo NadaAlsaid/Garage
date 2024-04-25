@@ -1,4 +1,5 @@
-package com.example.demofirebase;
+package com.example.garage;
+
 class Spot_firebase {
     public String is_available;
     public String  spot_id;
@@ -57,3 +58,4 @@ public class Spot {
 //        recreate();
 //    }
 }
+
