@@ -84,7 +84,13 @@ public class Manage_Door extends AppCompatActivity {
                                 Toast.makeText(getApplicationContext(), "The Door is open", Toast.LENGTH_SHORT).show();
                                 doorSwitch.setBackgroundResource(R.color.teal_700);
                                 doorRef.setValue("open"); // Update the door's status in Firebase
-
+                                                                SpotsDbHelper spotsDbHelper = new SpotsDbHelper(Manage_Door.this);
+                                Spot ss= spotsDbHelper.get_spot(userID);
+                                if (ss != null){
+                                    updateSpotAvailabilityInFirebase(ss);
+                                    Toast.makeText(Manage_Door.this, "User" + userID+ " coming out", Toast.LENGTH_SHORT).show();
+                                    Clear_spot_firebase(ss);
+                                }
                             }else{
                                 Toast.makeText(getApplicationContext(), "The Door is closed", Toast.LENGTH_SHORT).show();
                                 doorSwitch.setBackgroundResource(R.color.red);
@@ -145,5 +151,50 @@ public class Manage_Door extends AppCompatActivity {
             return false;
         }
         return networkInfo.isConnected();
+    }
+
+        private void updateSpotAvailabilityInFirebase(Spot spot) {
+        // Get the spot data (assuming you have the spot object or its id)
+        String spotId = String.valueOf(spot.getSpot_id());
+        boolean newAvailability = spot.isSpot_availablility();
+        String currentUserId =String.valueOf(userID); // Replace with your method to get user ID
+        // Extract individual components of the current time
+        LocalTime currentTime = LocalTime.now();
+//            int hour = currentTime.getHour();
+//            int minute = currentTime.getMinute();
+//            int second = currentTime.getSecond();
+        // Get a reference to the specific spot in Firebase
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference spotRef = database.getReference("Spots").child("spot"+spotId);
+
+        // Update both is_available and user_id
+        HashMap<String, Object> updates = new HashMap<>();
+        updates.put("time_out", String.valueOf(currentTime));
+        spotRef.updateChildren(updates, new DatabaseReference.CompletionListener() {
+            @Override
+            public void onComplete(@Nullable DatabaseError error, @NonNull DatabaseReference ref) {
+                // Handle update completion (same as before)
+            }
+        });
+    }
+
+    private void Clear_spot_firebase(Spot spot) {
+        // Get the spot data (assuming you have the spot object or its id)
+        String spotId = String.valueOf(spot.getSpot_id());
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference spotRef = database.getReference("Spots").child("spot"+spotId);
+
+        // Update both is_available and user_id
+        HashMap<String, Object> updates = new HashMap<>();
+        updates.put("is_available", "true");
+        updates.put("user_id", "");
+        updates.put("time_in", "0:0");
+        updates.put("time_out", "0:0");
+        spotRef.updateChildren(updates, new DatabaseReference.CompletionListener() {
+            @Override
+            public void onComplete(@Nullable DatabaseError error, @NonNull DatabaseReference ref) {
+                // Handle update completion (same as before)
+            }
+        });
     }
 }
