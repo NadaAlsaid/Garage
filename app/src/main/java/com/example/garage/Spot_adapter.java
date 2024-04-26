@@ -1,35 +1,12 @@
 package com.example.garage;
 
-import android.annotation.SuppressLint;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.TextView;
-import android.widget.Toast;
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
-import java.util.ArrayList;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.analytics.FirebaseAnalytics;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.annotations.NotNull;
-import android.util.Log;
-import androidx.annotation.Nullable;
-
 import static android.content.Intent.getIntent;
 import static android.content.Intent.makeMainActivity;
 
 import static androidx.core.content.ContextCompat.getSystemService;
+
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -115,7 +92,9 @@ public class Spot_adapter extends RecyclerView.Adapter<Spot_adapter.SpotViewHold
                             Intent intent = new Intent(context, Spot_Availability.class);
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             context.startActivity(intent);
-                            Toast.makeText(itemView.getContext(), "Spot is booked", Toast.LENGTH_SHORT).show();
+                            SpotsDbHelper spotsDbHelper = new SpotsDbHelper(context);
+                            Spot ss= spotsDbHelper.get_spot(spot.getUser_id());
+                            Toast.makeText(itemView.getContext(), "Spot "+ ss.getSpot_id()+" is booked", Toast.LENGTH_SHORT).show();
                         }if(connection ==false){
 //                            Intent intent = new Intent(context, Spot_Availability.class);
 //                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -135,7 +114,12 @@ public class Spot_adapter extends RecyclerView.Adapter<Spot_adapter.SpotViewHold
             String spotId = String.valueOf(spot.getSpot_id());
             boolean newAvailability = spot.isSpot_availablility();
             String currentUserId =String.valueOf(userID); // Replace with your method to get user ID
+            // Extract individual components of the current time
+            LocalTime currentTime = LocalTime.now();
 
+//            int hour = currentTime.getHour();
+//            int minute = currentTime.getMinute();
+//            int second = currentTime.getSecond();
             // Get a reference to the specific spot in Firebase
             FirebaseDatabase database = FirebaseDatabase.getInstance();
             DatabaseReference spotRef = database.getReference("Spots").child("spot"+spotId);
@@ -144,6 +128,7 @@ public class Spot_adapter extends RecyclerView.Adapter<Spot_adapter.SpotViewHold
             HashMap<String, Object> updates = new HashMap<>();
             updates.put("is_available", "false");
             updates.put("user_id", currentUserId);
+            updates.put("time_in", String.valueOf(currentTime));
             spotRef.updateChildren(updates, new DatabaseReference.CompletionListener() {
                 @Override
                 public void onComplete(@Nullable DatabaseError error, @NonNull DatabaseReference ref) {
