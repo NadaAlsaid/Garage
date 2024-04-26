@@ -54,8 +54,8 @@ public class Spot_Availability extends AppCompatActivity {
     RecyclerView available_Spots_list;
     ArrayList<Spot>offline_spots_list = new ArrayList<>();
     ArrayList<Spot> online_spots_list = new ArrayList<>();
-
     AnimatedBottomBar animatedBottomBar ;
+    int userID;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,8 +66,7 @@ public class Spot_Availability extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        int userID;
-                Intent intent = getIntent();
+        Intent intent = getIntent();
         Bundle extras = intent.getExtras();
         if (extras != null) {
             userID = extras.getInt("user_id", -1);  // -1 is a default value if "user_id" is not found
