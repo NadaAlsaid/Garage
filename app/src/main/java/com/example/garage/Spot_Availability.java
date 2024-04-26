@@ -66,7 +66,8 @@ public class Spot_Availability extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        Intent intent = getIntent();
+
+                Intent intent = getIntent();
         Bundle extras = intent.getExtras();
         if (extras != null) {
             userID = extras.getInt("user_id", -1);  // -1 is a default value if "user_id" is not found
@@ -132,6 +133,8 @@ public class Spot_Availability extends AppCompatActivity {
             available_Spots_list.setLayoutManager(layoutmanager);
             available_Spots_list.setAdapter(adapter);
         }
+        animatedBottomBar = findViewById(R.id.bottom_bar);
+
         animatedBottomBar.setOnTabSelectListener(new AnimatedBottomBar.OnTabSelectListener() {
             @Override
             public void onTabSelected(int i, @Nullable AnimatedBottomBar.Tab tab, int i1, @NonNull AnimatedBottomBar.Tab tab1) {
