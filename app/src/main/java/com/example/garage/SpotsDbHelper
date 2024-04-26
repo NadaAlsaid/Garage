@@ -1,4 +1,5 @@
 package com.example.garage;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -12,12 +13,12 @@ public class SpotsDbHelper extends SQLiteOpenHelper {
 
     public static final String DATABASE_NAME = "spots.db";
     public static final int DATABASE_VERSION = 1;
-    public static final String TABLE_NAME = "spots";
-    public static final String COLUMN_Spot_ID = "spot_id";
-    public static final String COLUMN_AVAILABLE = "is_available";
-    public static final String COLUMN_USER_ID = "user_id";
-    public static final String COLUMN_TIME_IN = "time_in";
-    public static final String COLUMN_TIME_OUT = "time_out";
+        public static final String TABLE_NAME = "spots";
+        public static final String COLUMN_Spot_ID = "spot_id";
+        public static final String COLUMN_AVAILABLE = "is_available";
+        public static final String COLUMN_USER_ID = "user_id";
+        public static final String COLUMN_TIME_IN = "time_in";
+        public static final String COLUMN_TIME_OUT = "time_out";
 
     private static final String CREATE_SPOTS_TABLE = "CREATE TABLE " +
             TABLE_NAME + " (" +
@@ -67,7 +68,7 @@ public class SpotsDbHelper extends SQLiteOpenHelper {
             Boolean available = false;
             int w = cursor.getColumnIndex(COLUMN_Spot_ID);
             if (w>-1){
-                spot_id = cursor.getInt(w);
+                 spot_id = cursor.getInt(w);
             }
             int y = cursor.getColumnIndex(COLUMN_AVAILABLE);
             if (y>-1){
@@ -80,15 +81,15 @@ public class SpotsDbHelper extends SQLiteOpenHelper {
             // Assuming these additional columns exist in your Spots table
             int z = cursor.getColumnIndex(COLUMN_USER_ID);
             if (z>-1){
-                user_id = cursor.getInt(z);  // Replace with actual column name for user ID
+                 user_id = cursor.getInt(z);  // Replace with actual column name for user ID
             }
             int m = cursor.getColumnIndex(COLUMN_TIME_IN);
             if (m>-1){
-                time_in = cursor.getString(m);  // Replace with actual column name for time_in
+                 time_in = cursor.getString(m);  // Replace with actual column name for time_in
             }
             int n = cursor.getColumnIndex(COLUMN_TIME_OUT);
             if (n>-1){
-                time_out = cursor.getString(n);  // Replace with actual column name for time_out
+                 time_out = cursor.getString(n);  // Replace with actual column name for time_out
             }
 
             Spot s= new Spot();
@@ -106,7 +107,61 @@ public class SpotsDbHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getWritableDatabase();
         db.delete(TABLE_NAME, null, null);
     }
+    
+    public Spot  get_spot(int UserId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = null;
+        try {
+            cursor = db.rawQuery("SELECT * FROM spots WHERE user_id = ?", new String[] {String.valueOf(UserId)});
+            int count = cursor.getCount();
+            if (count == 0) {
+                return null;
+            }
+            ArrayList<Spot> elementList = new ArrayList<Spot>();
+            Spot s= new Spot();
+//            int i = 0;
+            if (cursor.moveToFirst()) {
+//                do {
+                    /*
+                    *    TABLE_NAME + " (" +
+                        COLUMN_Spot_ID+ " INTEGER PRIMARY KEY, " +
+                        COLUMN_AVAILABLE + " INTEGER NOT NULL, " +
+                        COLUMN_USER_ID + " INTEGER, " +
+                        COLUMN_TIME_IN+ " TEXT, " +
+                        COLUMN_TIME_OUT + " TEXT);";
+                    * */
+                    int spot_id = cursor.getInt(0);
+                    String available = cursor.getString(1);
+                    int user_id = cursor.getInt(2);
+                    String time_in = cursor.getString(3);
+                    String time_out = cursor.getString(4);
 
+                    s.setSpot_id(spot_id);
+                    s.setUser_id(user_id);
+                    if(available.equalsIgnoreCase("true")){
+                        s.setSpot_availablility(true);
+
+                    }else if(available.equalsIgnoreCase("false")){
+                        s.setSpot_availablility(false);
+                    }
+                    s.setTime_in(time_in);
+                    s.setTime_out(time_out);
+                    elementList.add(s);
+//                    i += 1;
+//                } while (cursor.moveToNext());
+            }
+            return s;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+            db.close();
+        }
+    }
     public ArrayList<Spot> getData() {
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = null;
@@ -160,7 +215,6 @@ public class SpotsDbHelper extends SQLiteOpenHelper {
             db.close();
         }
     }
-
 }
 //final class SpotsContract {
 //
