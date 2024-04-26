@@ -54,9 +54,15 @@ public class HomeActivity extends AppCompatActivity  {
                 // You can access the clickedItem and perform any desired actions
                 if (clickedItem.getName() == "Control garage door") {
                     Intent intent = new Intent(getApplicationContext(), Manage_Door.class);
+                    Bundle extras = new Bundle();
+                    extras.putInt("user_id", 120);
+                    intent.putExtras(extras);
                     startActivity(intent);
                 } else if (clickedItem.getName() == "Check spots availability") {
                     Intent intent = new Intent(getApplicationContext(), Spot_Availability.class);
+                    Bundle extras = new Bundle();
+                    extras.putInt("user_id", 120);
+                    intent.putExtras(extras);
                     startActivity(intent);
                 } else if (clickedItem.getName() == "Check Temperature") {
                     Intent intent = new Intent(getApplicationContext(), TemperatureActivity.class);
