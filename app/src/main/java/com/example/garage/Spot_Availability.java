@@ -66,7 +66,14 @@ public class Spot_Availability extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        int userID = 115;
+        int userID;
+                Intent intent = getIntent();
+        Bundle extras = intent.getExtras();
+        if (extras != null) {
+            userID = extras.getInt("user_id", -1);  // -1 is a default value if "user_id" is not found
+            Toast.makeText(Spot_Availability.this, "user " +userID, Toast.LENGTH_SHORT).show();
+
+        }
         available_Spots_list = findViewById(R.id.spot_list_rv);
         SpotsDbHelper spotsDbHelper = new SpotsDbHelper(Spot_Availability.this);
         if(check_connection()){
