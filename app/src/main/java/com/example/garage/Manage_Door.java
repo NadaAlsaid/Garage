@@ -45,6 +45,7 @@ import com.google.firebase.database.ValueEventListener;
 public class Manage_Door extends AppCompatActivity {
     Switch doorSwitch;
     Boolean IsClosed = false;
+        int userID;
     AnimatedBottomBar animatedBottomBar ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +58,12 @@ public class Manage_Door extends AppCompatActivity {
             return insets;
         });
         doorSwitch = findViewById(R.id.door_status_switch);
-
+        Intent intent = getIntent();
+        Bundle extras = intent.getExtras();
+        if (extras != null) {
+            userID = extras.getInt("user_id", -1);  // -1 is a default value if "user_id" is not found
+            Toast.makeText(Manage_Door.this, "user " +userID, Toast.LENGTH_SHORT).show();
+        }
         if(check_connection()){
             FirebaseDatabase database = FirebaseDatabase.getInstance();
             DatabaseReference doorRef = database.getReference("Door_status");
