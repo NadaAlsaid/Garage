@@ -1,7 +1,5 @@
 package com.example.garage;
 
-import static android.os.SystemClock.sleep;
-
 import android.app.DatePickerDialog;
 import android.content.ContentValues;
 import android.content.Context;
@@ -36,6 +34,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.github.dhaval2404.imagepicker.ImagePicker;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -104,15 +103,12 @@ public class RegisterActivity extends AppCompatActivity {
         chooseImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                ImagePicker.with(RegisterActivity.this)
-//                        .crop()                    //Crop image(Optional), Check Customization for more option
-//                        .compress(1024)            //Final image size will be less than 1 MB(Optional)
-//                        .maxResultSize(1080, 1080)    //Final image resolution will be less than 1080 x 1080(Optional)
-//                        .start();
-                Intent intent = new Intent();
-                intent.setType("image/*");
-                intent.setAction(Intent.ACTION_PICK);
-                startActivityForResult(intent, RC_CHOOSE_IMAGE);
+                ImagePicker.with(RegisterActivity.this)
+                        .crop()                    //Crop image(Optional), Check Customization for more option
+                        .compress(1024)            //Final image size will be less than 1 MB(Optional)
+                        .maxResultSize(1080, 1080)    //Final image resolution will be less than 1080 x 1080(Optional)
+                        .start();
+
             }
         });
 
@@ -256,8 +252,7 @@ public class RegisterActivity extends AppCompatActivity {
         profileImageUri = data.getData();
         profileImageView.setImageURI(profileImageUri);
         url = profileImageUri.toString();
-        sleep(1000);
-        profileImageView.setImageURI(Uri.parse(url));
+
     }
     private void registerUser(String textfullName,String textUserName, String textEmail, String textDoB, String textPwd,String textGender, String textMobile,  String url ) {
 
@@ -320,8 +315,6 @@ public class RegisterActivity extends AppCompatActivity {
             values.put(MyDatabaseHelper.COLUMN_USER_ID_FIREBASE, firebase_id);
             db.insert(MyDatabaseHelper.TABLE_NAME, null, values);
             db.close();
-        }else{
-            Toast.makeText(RegisterActivity.this, "You already have account ", Toast.LENGTH_LONG).show();
         }
     }
     private void registerNetworkCallback() {

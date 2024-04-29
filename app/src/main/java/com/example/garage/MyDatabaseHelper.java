@@ -109,7 +109,6 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
                 String password = cursor.getString(passwordIndex);
                 String picUrl = cursor.getString(picUrlIndex);
                 String firebaseId = cursor.getString(firebaseIdIndex);
-
                 UserModel userModel = new UserModel(fullName, userName, email, dob, gender, mobile, password, firebaseId, picUrl);
                 userList.add(userModel);
             } while (cursor.moveToNext());
@@ -131,12 +130,12 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         {
             long result =DB.update(TABLE_NAME, contentValues,COLUMN_EMAIL + " =? ",new String[] {email});
             if (result==-1){
-                return "can't u[date from data";
+                return "can't update from data";
             } else {
                 return "true";
             }
         } else {
-            return  "can't u[date out dat =a " + email ;
+            return  "can't update out data " + email ;
         }
 
     }

@@ -9,8 +9,6 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -27,7 +25,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-
+import com.github.dhaval2404.imagepicker.ImagePicker;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -73,12 +71,20 @@ public class UserProfileActivity extends AppCompatActivity {
         profileImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ProfileImage();
+                ImagePicker.with(UserProfileActivity.this)
+                        .crop()                    //Crop image(Optional), Check Customization for more option
+                        .compress(1024)            //Final image size will be less than 1 MB(Optional)
+                        .maxResultSize(1080, 1080)    //Final image resolution will be less than 1080 x 1080(Optional)
+                        .start();
             }
         });
         logoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                SharedPreferences preferences = getSharedPreferences("checkedbox", MODE_PRIVATE);
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.putString("remember", "false");
+                editor.apply();
                 Intent intent = new Intent(UserProfileActivity.this, WelcomeActivity.class);
                 startActivity(intent);
 
@@ -198,6 +204,7 @@ public class UserProfileActivity extends AppCompatActivity {
                         doB = readUserDetails.getTextDoB();
                         gender = readUserDetails.getTextGender();
                         mobile = readUserDetails.getTextMobile();
+//                        Toast.makeText(getApplicationContext(),  "  "+ readUserDetails.getUrl() , Toast.LENGTH_LONG).show();
                         url = readUserDetails.getUrl();
                         textViewWelcome.setText("Welcome, " + readUserDetails.getTextUserName() + "!");
                         textViewFullName.setText(fullName);
@@ -207,7 +214,7 @@ public class UserProfileActivity extends AppCompatActivity {
                         textViewMobile.setText(mobile);
                         if (url != null) {
 //                            profileImageUri = Uri.parse(url);
-//                            profileImageView.setImageURI(Uri.parse(url));
+                            profileImageView.setImageURI(Uri.parse(url));
                         }
                     }
                     progressBar.setVisibility(View.GONE);
@@ -240,7 +247,6 @@ public class UserProfileActivity extends AppCompatActivity {
             gender = cursor.getString(genderIndex);
             url = cursor.getString(picUrlIndex);
             mobile = cursor.getString(mobileIndex);
-            Toast.makeText(getApplicationContext(), fullName + "    " + doB +"  "+ gender + "  "+url + "   " + mobile, Toast.LENGTH_LONG).show();
             textViewWelcome.setText("Welcome, " + userName + "!");
 
             textViewFullName.setText(fullName );
@@ -249,8 +255,7 @@ public class UserProfileActivity extends AppCompatActivity {
             textViewGender.setText(gender);
             textViewMobile.setText(mobile);
             if (url != null) {
-//                profileImageUri = Uri.parse(url);
-//                profileImageView.setImageURI(Uri.parse(url));
+                profileImageView.setImageURI(Uri.parse(url));
             }
         }
 
@@ -258,12 +263,7 @@ public class UserProfileActivity extends AppCompatActivity {
         progressBar.setVisibility(View.GONE);
     }
 
-    private void ProfileImage() {
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_PICK);
-        startActivityForResult(intent, RC_CHOOSE_IMAGE);
-    }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
