@@ -1,8 +1,13 @@
 package com.example.garage;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -12,10 +17,19 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import nl.joery.animatedbottombar.AnimatedBottomBar;
 
 public class Subscription extends AppCompatActivity {
     AnimatedBottomBar animatedBottomBar ;
+
+    TextView subscriptionTextView , spotTextView ;
+    String mail , price = "0$" , spot = "0" ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,6 +40,45 @@ public class Subscription extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        SharedPreferences sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+        mail = sharedPreferences.getString("email", "");
+        subscriptionTextView = findViewById(R.id.TotalPrice);
+        spotTextView = findViewById(R.id.placeParking);
+        if(check_connection()) {
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            mail = mail.replaceAll(".com" , "");
+//            Toast.makeText(getApplicationContext(), mail, Toast.LENGTH_SHORT).show();
+//            Toast.makeText(getApplicationContext(), ref.getKey() , Toast.LENGTH_SHORT).show();
+            DatabaseReference ref = database.getReference("subscription");
+            ref.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                    Toast.makeText(getApplicationContext(), " Network connected", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(getApplicationContext(), ref.getKey() , Toast.LENGTH_SHORT).show();
+
+                    Price_Spots spots = snapshot.child(mail).getValue(Price_Spots.class);
+                    price = spots.getPrice();
+//                    Toast.makeText(getApplicationContext(), spots.toString() , Toast.LENGTH_SHORT).show();
+                    spot = spots.getSpot_id();
+                    if(price != null) {
+                        price = "Total Price : " + price + " 👌";
+                        subscriptionTextView.setText(price);
+                        spot = "You stop at "+ spot +" spot" ;
+                        spotTextView.setText(spot);
+                    }
+
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Toast.makeText(getApplicationContext(), "Firebase ,Error reading values: ", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }else
+            Toast.makeText(getApplicationContext(), "Please Check your Network Connection!", Toast.LENGTH_SHORT).show();
+
+
         animatedBottomBar = findViewById(R.id.bottom_bar);
 
         animatedBottomBar.setOnTabSelectListener(new AnimatedBottomBar.OnTabSelectListener() {
@@ -62,5 +115,13 @@ public class Subscription extends AppCompatActivity {
             }
         });
 
+    }
+    public Boolean check_connection(){
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo= connectivityManager.getActiveNetworkInfo();
+        if (networkInfo==null){
+            return false;
+        }
+        return true;
     }
 }

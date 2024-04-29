@@ -25,7 +25,6 @@
         android:layout_height="wrap_content"
         android:textAlignment="center"
         android:textSize="20sp"
-        android:text="23.0"
         android:textStyle="bold"
         android:layout_alignBottom="@+id/subjectTemperature"
         android:id="@+id/Temperature"

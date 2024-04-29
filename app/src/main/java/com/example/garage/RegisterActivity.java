@@ -1,5 +1,7 @@
 package com.example.garage;
 
+import static android.os.SystemClock.sleep;
+
 import android.app.DatePickerDialog;
 import android.content.ContentValues;
 import android.content.Context;
@@ -33,17 +35,10 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.google.android.gms.cast.framework.media.ImagePicker;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.auth.User;
 import com.google.firebase.storage.FirebaseStorage;
 
 import java.util.Calendar;
@@ -67,9 +62,6 @@ public class RegisterActivity extends AppCompatActivity {
     MyDatabaseHelper helper = new MyDatabaseHelper(this);
 
     boolean isNetworkConnected = false;
-
-
-
 
     String textfullName;
     String textUserName;
@@ -111,7 +103,15 @@ public class RegisterActivity extends AppCompatActivity {
         chooseImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                chooseProfileImage();
+//                ImagePicker.with(RegisterActivity.this)
+//                        .crop()                    //Crop image(Optional), Check Customization for more option
+//                        .compress(1024)            //Final image size will be less than 1 MB(Optional)
+//                        .maxResultSize(1080, 1080)    //Final image resolution will be less than 1080 x 1080(Optional)
+//                        .start();
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_PICK);
+                startActivityForResult(intent, RC_CHOOSE_IMAGE);
             }
         });
 
@@ -248,21 +248,15 @@ public class RegisterActivity extends AppCompatActivity {
 
     }
 
-    private void chooseProfileImage() {
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_PICK);
-        startActivityForResult(intent, RC_CHOOSE_IMAGE);
-    }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == RC_CHOOSE_IMAGE && resultCode == RESULT_OK) {
-            profileImageUri = data.getData();
-            profileImageView.setImageURI(profileImageUri);
-            url = profileImageUri.toString();
-        }
+        assert data != null;
+        profileImageUri = data.getData();
+        profileImageView.setImageURI(profileImageUri);
+        url = profileImageUri.toString();
+        sleep(1000);
+        profileImageView.setImageURI(Uri.parse(url));
     }
     private void registerUser(String textfullName,String textUserName, String textEmail, String textDoB, String textPwd,String textGender, String textMobile,  String url ) {
 

@@ -1,8 +1,12 @@
 package com.example.garage;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -14,61 +18,113 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.time.LocalTime;
 import java.util.ArrayList;
 
 import nl.joery.animatedbottombar.AnimatedBottomBar;
 
+//import nl.joery.animatedbottombar.AnimatedBottomBar;
+
 public class Spot_Availability extends AppCompatActivity {
     RecyclerView available_Spots_list;
+    ArrayList<Spot>offline_spots_list = new ArrayList<>();
+    ArrayList<Spot> online_spots_list = new ArrayList<>();
     AnimatedBottomBar animatedBottomBar ;
+    int userID;
+    //mariam added lines 1-2
+    private static final String TAG = "Check_Spots_Availability";//1
+    private static final String stamp = Long.toString(System.currentTimeMillis());//2
+    //    String mail=getIntent().getStringExtra("mail");
+    String mail;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_spot_availability);
+//        Intent intent = getIntent();
+//        Bundle extras = intent.getExtras();
+//        if (extras != null) {
+//            userID = extras.getInt("user_id", 0);  // -1 is a default value if "user_id" is not found
+//            mail = extras.getString("mail","oyara392");
+//            Toast.makeText(Spot_Availability.this, "user " +userID, Toast.LENGTH_SHORT).show();
+//        }
+        SharedPreferences sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+        mail = sharedPreferences.getString("email", "");
+//        Toast.makeText(Spot_Availability.this, "user " +mail, Toast.LENGTH_SHORT).show();
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            Logs spotLog=new Logs(TAG,stamp);
+            LocalTime currentTime = LocalTime.now();
+            spotLog.CreateLog(mail , TAG,String.valueOf(currentTime));
             return insets;
         });
+
         available_Spots_list = findViewById(R.id.spot_list_rv);
-        ArrayList<Spot> spots_list= new ArrayList<>();
-        Spot s1 = new Spot();
-        Spot s2 = new Spot();
-        Spot s3 = new Spot();
-        Spot s4 = new Spot();
-        Spot s5 = new Spot();
-        Spot s6 = new Spot();
-        s1.setSpot_id(1);
-        s1.setSpot_availablility(true);
-        spots_list.add(s1);
+        SpotsDbHelper spotsDbHelper = new SpotsDbHelper(Spot_Availability.this);
+        if(check_connection()){
+            FirebaseDatabase  database = FirebaseDatabase.getInstance();
+            DatabaseReference ref = database.getReference("Spots");
+            ref.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-        s2.setSpot_id(2);
-        s2.setSpot_availablility(false);
-        spots_list.add(s2);
+                    Toast.makeText(Spot_Availability.this, " Network connected", Toast.LENGTH_SHORT).show();
+                    spotsDbHelper.deleteAllSpots();
+                    for (DataSnapshot spotSnapshot : snapshot.getChildren()) {
+                        Spot_firebase spot = spotSnapshot.getValue(Spot_firebase.class);
+                        Spot spot_normal = new Spot();
+                        spot_normal.setSpot_id(Integer.parseInt(spot.spot_id));
+                        if (spot != null && spot.is_available != null) {
+                            if (spot.is_available.equalsIgnoreCase("true")) {
+                                spot_normal.setSpot_availablility(true);
 
-        s3.setSpot_id(3);
-        s3.setSpot_availablility(false);
+                            } else if (spot.is_available.equalsIgnoreCase("false")) {
+                                spot_normal.setSpot_availablility(false);
 
-        spots_list.add(s3);
+                            } else {
+                                // Handle unexpected values (optional)
+                                spot_normal.setSpot_availablility(false);  // Set a default value (optional)
+                                Toast.makeText(Spot_Availability.this, "spot "+spot_normal.getSpot_id()+"Has problem in availability",Toast.LENGTH_SHORT).show();
+                            }
+                            spot_normal.setUser_id(spot.email);
+                            spot_normal.setTime_in(spot.time_in);
+                            spot_normal.setTime_out(spot.time_out);
+                            online_spots_list.add(spot_normal);
+                            long test = spotsDbHelper.addSpot(spot_normal.getSpot_id() , spot_normal.getUser_id() , spot_normal.isSpot_availablility(), spot_normal.getTime_in() , spot_normal.getTime_out());
+//                            Toast.makeText(Spot_Availability.this, "spot"+test,Toast.LENGTH_SHORT).show();
+                        }
+                    }
 
-        s4.setSpot_id(4);
-        s4.setSpot_availablility(true);
-        spots_list.add(s4);
+                    offline_spots_list= spotsDbHelper.getAllSpots();
+                    Spot_adapter adapter = new Spot_adapter(Spot_Availability.this,offline_spots_list,mail,true);
+                    RecyclerView.LayoutManager layoutmanager = new GridLayoutManager(Spot_Availability.this,2);
+                    available_Spots_list.setHasFixedSize(true);
+                    available_Spots_list.setLayoutManager(layoutmanager);
+                    available_Spots_list.setAdapter(adapter);
+                }
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Toast.makeText(Spot_Availability.this, "Firebase ,Error reading values: ", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }else{
+            Toast.makeText(Spot_Availability.this, "Please Check your Network Connection!", Toast.LENGTH_SHORT).show();
 
-        s5.setSpot_id(5);
-        s5.setSpot_availablility(true);
-        spots_list.add(s5);
+            offline_spots_list= spotsDbHelper.getData();
 
-        s6.setSpot_id(6);
-        s6.setSpot_availablility(true);
-        spots_list.add(s6);
-
-        Spot_adapter adapter = new Spot_adapter(spots_list);
-        RecyclerView.LayoutManager layoutmanager = new GridLayoutManager(this,2);
-        available_Spots_list.setHasFixedSize(true);
-        available_Spots_list.setLayoutManager(layoutmanager);
-        available_Spots_list.setAdapter(adapter);
+            Spot_adapter adapter = new Spot_adapter(Spot_Availability.this,offline_spots_list,mail,check_connection());
+            RecyclerView.LayoutManager layoutmanager = new GridLayoutManager(Spot_Availability.this,2);
+            available_Spots_list.setHasFixedSize(true);
+            available_Spots_list.setLayoutManager(layoutmanager);
+            available_Spots_list.setAdapter(adapter);
+        }
         animatedBottomBar = findViewById(R.id.bottom_bar);
 
         animatedBottomBar.setOnTabSelectListener(new AnimatedBottomBar.OnTabSelectListener() {
@@ -105,5 +161,13 @@ public class Spot_Availability extends AppCompatActivity {
             }
         });
 
+    }
+    public Boolean check_connection(){
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo= connectivityManager.getActiveNetworkInfo();
+        if (networkInfo==null){
+            return false;
+        }
+        return true;
     }
 }

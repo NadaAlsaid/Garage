@@ -4,14 +4,10 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.example.garage.Logs;
-import com.example.garage.R;
 
 import java.util.List;
 
@@ -20,6 +16,7 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.FeatureViewHolde
     private static Context cont;
     private static List<Logs> myLogs;
     private static OnItemClickListener clickListener;
+
 
     public LogAdapter(Context cont,List<Logs>myLogs) {
         this.cont=cont;
@@ -40,8 +37,6 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.FeatureViewHolde
         holder.Activity.setText(myLogs.get(position).getAction());
         holder.Timestamp.setText(myLogs.get(position).getTimeStamp());
     }
-
-
     @Override
     public int getItemCount() {
         return myLogs.size();

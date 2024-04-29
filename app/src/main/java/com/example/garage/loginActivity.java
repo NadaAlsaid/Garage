@@ -42,6 +42,7 @@ public class loginActivity extends AppCompatActivity {
     Button google ;
     Button register_btn ;
     private FirebaseAuth authProfile;
+    String textEmail = " ";
     MyDatabaseHelper userDatabase ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,10 +80,11 @@ public class loginActivity extends AppCompatActivity {
             }
         });
         Button buttonLogin = findViewById(R.id.button_login);
+
         google.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String textEmail = editTextLoginEmail.getText().toString();
+                textEmail = editTextLoginEmail.getText().toString();
                 String textPwd = editTextLoginPwd.getText().toString();
                 if (TextUtils.isEmpty(textEmail)) {
                     Toast.makeText(loginActivity.this, "please enter your Email ", Toast.LENGTH_SHORT).show();
@@ -115,6 +117,11 @@ public class loginActivity extends AppCompatActivity {
                     SharedPreferences.Editor editor=preferences.edit();
                     editor.putString("remember","true");
                     editor.apply();
+                    preferences = getSharedPreferences("MyAppPrefs",MODE_PRIVATE);
+                    editor = preferences.edit();
+                    editor.remove("email" );
+                    editor.putString("email" , editTextLoginEmail.getText().toString()) ;
+                    editor.apply();
                     Toast.makeText(loginActivity.this, "Checked ", Toast.LENGTH_SHORT).show();
 
                 }else if(!compoundButton.isChecked()){
@@ -144,6 +151,12 @@ public class loginActivity extends AppCompatActivity {
                                 readUserDetails =  task.getResult().toObject(UserModel.class);
                                 if(readUserDetails!=null){
                                    if( readUserDetails.getTextEmail().equals(mail)  && pass.equals( readUserDetails.getTextPwd())){
+                                       SharedPreferences preferences = getSharedPreferences("MyAppPrefs",MODE_PRIVATE);
+                                       SharedPreferences.Editor editor = preferences.edit();
+                                       editor.remove("email" );
+                                       editor.putString("email" , mail) ;
+                                       Toast.makeText(getApplicationContext(), "user " +mail, Toast.LENGTH_SHORT).show();
+                                       editor.apply();
                                        Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
                                        finish();
                                        startActivity(intent);
@@ -165,7 +178,8 @@ public class loginActivity extends AppCompatActivity {
                         if (checkPasswordAndEmail.getCount() > 0) {
                             SharedPreferences preferences = getSharedPreferences("MyAppPrefs",MODE_PRIVATE);
                             SharedPreferences.Editor editor = preferences.edit();
-                            editor.putString("email", mail );
+                            editor.remove("email" );
+                            editor.putString("email" , mail) ;
                             editor.apply();
                             Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
                             finish();
@@ -203,6 +217,11 @@ public class loginActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task){
                 if (task.isSuccessful()){
+                    SharedPreferences preferences = getSharedPreferences("MyAppPrefs",MODE_PRIVATE);
+                    SharedPreferences.Editor editor = preferences.edit();
+                    editor.remove("email" );
+                    editor.putString("email" , Email) ;
+                    editor.apply();
                     Toast.makeText(loginActivity.this, "you are logged in now ", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(getApplicationContext() , HomeActivity.class);
                     startActivity(intent);

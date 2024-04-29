@@ -250,7 +250,7 @@ public class UserProfileActivity extends AppCompatActivity {
             textViewMobile.setText(mobile);
             if (url != null) {
 //                profileImageUri = Uri.parse(url);
-                profileImageView.setImageURI(Uri.parse(url));
+//                profileImageView.setImageURI(Uri.parse(url));
             }
         }
 

@@ -10,8 +10,9 @@
 
     <EditText
         android:id="@+id/search"
-        android:layout_width="match_parent"
+        android:layout_width="350dp"
         android:layout_height="40dp"
+        android:layout_marginTop="10dp"
         android:background="@android:drawable/button_onoff_indicator_off"
         android:ems="10"
         android:hint="  Search"
@@ -19,18 +20,18 @@
         android:shadowColor="#FFFFFF"
         android:textColor="@color/my_blue"
         android:textColorHint="#193BE4"
+
+        android:layout_centerHorizontal="true"
         tools:ignore="TouchTargetSizeCheck" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/logview"
         android:layout_width="wrap_content"
-        android:layout_centerInParent="true"
+        android:layout_centerHorizontal="true"
         android:layout_height="wrap_content"
         android:layout_below="@+id/search"
         android:layout_marginTop="10dp"
         tools:listitem="@layout/log_view"/>
-
-
 
         <nl.joery.animatedbottombar.AnimatedBottomBar
             android:id="@+id/bottom_bar"
