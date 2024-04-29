@@ -27,6 +27,7 @@ public class Spot_adapter extends RecyclerView.Adapter<Spot_adapter.SpotViewHold
     private Context context;
     private String mail;
     Boolean connection;
+    private static final String stamp = Long.toString(System.currentTimeMillis());//2
     public Spot_adapter(Context context, ArrayList<Spot> spots,String mail, Boolean connection) {
         this.context = context;
         this.spots = spots;
@@ -122,6 +123,10 @@ public class Spot_adapter extends RecyclerView.Adapter<Spot_adapter.SpotViewHold
                 @Override
                 public void onComplete(@Nullable DatabaseError error, @NonNull DatabaseReference ref) {
                     // Handle update completion (same as before)
+                    String tag = "Spots " + spotId + " registered" ;
+                    Logs spotLog=new Logs(tag,stamp);
+                    LocalTime currentTime = LocalTime.now();
+                    spotLog.CreateLog(mail , tag,String.valueOf(currentTime));
                 }
             });
         }

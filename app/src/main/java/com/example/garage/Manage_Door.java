@@ -36,14 +36,19 @@ public class Manage_Door extends AppCompatActivity {
     Boolean IsClosed = false;
     String email;
     AnimatedBottomBar animatedBottomBar ;
+
+    private static final String stamp = Long.toString(System.currentTimeMillis());//2
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        SharedPreferences sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+        email = sharedPreferences.getString("email", "");
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_manage_door);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+
             return insets;
         });
         doorSwitch = findViewById(R.id.door_status_switch);
@@ -53,24 +58,31 @@ public class Manage_Door extends AppCompatActivity {
 //            userID = extras.getInt("user_id", -1);  // -1 is a default value if "user_id" is not found
 //            Toast.makeText(Manage_Door.this, "user " +userID, Toast.LENGTH_SHORT).show();
 //        }
-        SharedPreferences sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
-        email = sharedPreferences.getString("email", "");
+
         if(check_connection()){
             FirebaseDatabase database = FirebaseDatabase.getInstance();
             DatabaseReference doorRef = database.getReference("Door_status");
             doorRef.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
+                    String tag ;
                     String value = dataSnapshot.getValue(String.class);
                     if(value.equalsIgnoreCase("Close")){
                         IsClosed =true;
                         doorSwitch.setBackgroundResource(R.color.red);
                         doorSwitch.setChecked(!(IsClosed));
+                        tag  ="you open door" ;
+                        Logs spotLog=new Logs(tag ,stamp);
+                        LocalTime currentTime = LocalTime.now();
+                        spotLog.CreateLog(email , tag,String.valueOf(currentTime));
                     }else if (value.equalsIgnoreCase("open")){
                         IsClosed = false;
                         doorSwitch.setBackgroundResource(R.color.teal_700);
                         doorSwitch.setChecked(!(IsClosed));
+                        tag  ="you close door" ;
+                        Logs spotLog=new Logs(tag ,stamp);
+                        LocalTime currentTime = LocalTime.now();
+                        spotLog.CreateLog(email , tag,String.valueOf(currentTime));
                     }else {
                         Toast.makeText(Manage_Door.this, "Error", Toast.LENGTH_SHORT).show();
                     }

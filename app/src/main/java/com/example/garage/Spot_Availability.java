@@ -38,8 +38,7 @@ public class Spot_Availability extends AppCompatActivity {
     AnimatedBottomBar animatedBottomBar ;
     int userID;
     //mariam added lines 1-2
-    private static final String TAG = "Check_Spots_Availability";//1
-    private static final String stamp = Long.toString(System.currentTimeMillis());//2
+
     //    String mail=getIntent().getStringExtra("mail");
     String mail;
     @Override
@@ -60,9 +59,7 @@ public class Spot_Availability extends AppCompatActivity {
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            Logs spotLog=new Logs(TAG,stamp);
-            LocalTime currentTime = LocalTime.now();
-            spotLog.CreateLog(mail , TAG,String.valueOf(currentTime));
+
             return insets;
         });
 
