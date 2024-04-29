@@ -6,6 +6,7 @@ import android.app.DatePickerDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.Network;
@@ -304,20 +305,24 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void saveUserToLocalCache(String textfullName,String textUserName, String textEmail, String textDoB, String textGender, String textMobile, String textPwd, String url , String firebase_id){
-
-        SQLiteDatabase db = helper.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(MyDatabaseHelper.COLUMN_FULL_NAME, textfullName);
-        values.put(MyDatabaseHelper.COLUMN_USER_NAME, textUserName);
-        values.put(MyDatabaseHelper.COLUMN_EMAIL, textEmail);
-        values.put(MyDatabaseHelper.COLUMN_DOB, textDoB);
-        values.put(MyDatabaseHelper.COLUMN_MOBILE, textMobile);
-        values.put(MyDatabaseHelper.COLUMN_GENDER, textGender);
-        values.put(MyDatabaseHelper.COLUMN_PWD, textPwd);
-        values.put(MyDatabaseHelper.COLUMN_PIC_URL, url);
-        values.put(MyDatabaseHelper.COLUMN_USER_ID_FIREBASE, firebase_id);
-        db.insert(MyDatabaseHelper.TABLE_NAME, null, values);
-        db.close();
+        Cursor cursor=  helper.get_user_info(textEmail);
+        if(cursor.getCount() == 0 ) {
+            SQLiteDatabase db = helper.getWritableDatabase();
+            ContentValues values = new ContentValues();
+            values.put(MyDatabaseHelper.COLUMN_FULL_NAME, textfullName);
+            values.put(MyDatabaseHelper.COLUMN_USER_NAME, textUserName);
+            values.put(MyDatabaseHelper.COLUMN_EMAIL, textEmail);
+            values.put(MyDatabaseHelper.COLUMN_DOB, textDoB);
+            values.put(MyDatabaseHelper.COLUMN_MOBILE, textMobile);
+            values.put(MyDatabaseHelper.COLUMN_GENDER, textGender);
+            values.put(MyDatabaseHelper.COLUMN_PWD, textPwd);
+            values.put(MyDatabaseHelper.COLUMN_PIC_URL, url);
+            values.put(MyDatabaseHelper.COLUMN_USER_ID_FIREBASE, firebase_id);
+            db.insert(MyDatabaseHelper.TABLE_NAME, null, values);
+            db.close();
+        }else{
+            Toast.makeText(RegisterActivity.this, "You already have account ", Toast.LENGTH_LONG).show();
+        }
     }
     private void registerNetworkCallback() {
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);

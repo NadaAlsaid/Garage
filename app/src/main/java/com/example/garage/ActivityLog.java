@@ -88,7 +88,7 @@ public class ActivityLog extends AppCompatActivity {
                             }
                         }
                         adapter = new LogAdapter(getApplicationContext(), logs);
-                        Toast.makeText(ActivityLog.this, "No of logs = "+logs.size(), Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(ActivityLog.this, "No of logs = "+logs.size(), Toast.LENGTH_SHORT).show();
                         recyclerView.setAdapter(adapter);
                     } else {
                         Toast.makeText(ActivityLog.this, "No logs found", Toast.LENGTH_SHORT).show();

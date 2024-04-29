@@ -3,6 +3,7 @@ package com.example.garage;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -29,6 +30,7 @@ public class Subscription extends AppCompatActivity {
     AnimatedBottomBar animatedBottomBar ;
 
     TextView subscriptionTextView , spotTextView ;
+    SubscriptionDbHelper subscriptionDbHelper ;
     String mail , price = "0$" , spot = "0" ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,9 +46,11 @@ public class Subscription extends AppCompatActivity {
         mail = sharedPreferences.getString("email", "");
         subscriptionTextView = findViewById(R.id.TotalPrice);
         spotTextView = findViewById(R.id.placeParking);
+        subscriptionDbHelper = new SubscriptionDbHelper(getApplicationContext()) ;
+        mail = mail.replaceAll(".com" , "");
         if(check_connection()) {
             FirebaseDatabase database = FirebaseDatabase.getInstance();
-            mail = mail.replaceAll(".com" , "");
+
 //            Toast.makeText(getApplicationContext(), mail, Toast.LENGTH_SHORT).show();
 //            Toast.makeText(getApplicationContext(), ref.getKey() , Toast.LENGTH_SHORT).show();
             DatabaseReference ref = database.getReference("subscription");
@@ -66,6 +70,14 @@ public class Subscription extends AppCompatActivity {
                         subscriptionTextView.setText(price);
                         spot = "You stop at "+ spot +" spot" ;
                         spotTextView.setText(spot);
+                        Cursor cursor = subscriptionDbHelper.getAllSpots(mail);
+                        if(cursor.getCount() == 0 ){
+                           long r =  subscriptionDbHelper.addSpot(spots.getSpot_id() , mail , spots.getPrice()) ;
+//                            Toast.makeText(getApplicationContext(), "Please " +r, Toast.LENGTH_SHORT).show();
+                        }else {
+                            boolean flag= subscriptionDbHelper.updateSpot(spots.getSpot_id() , mail , spots.getPrice()) ;
+//                            Toast.makeText(getApplicationContext(), "Please " + flag, Toast.LENGTH_SHORT).show();
+                        }
                     }
 
                 }
@@ -75,10 +87,19 @@ public class Subscription extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Firebase ,Error reading values: ", Toast.LENGTH_SHORT).show();
                 }
             });
-        }else
+        }else {
+            Cursor cursor = subscriptionDbHelper.getAllSpots(mail);
+//            Toast.makeText(getApplicationContext(), "Please Connection!" + cursor.getCount(), Toast.LENGTH_SHORT).show();
+            if(cursor.getCount() != 0 ){
+                cursor.moveToFirst();
+                price = "Total Price : " + cursor.getString(2) + " 👌";
+                subscriptionTextView.setText(price);
+                spot = "You stop at "+ cursor.getString(0) +" spot" ;
+                spotTextView.setText(spot);
+            }
             Toast.makeText(getApplicationContext(), "Please Check your Network Connection!", Toast.LENGTH_SHORT).show();
 
-
+        }
         animatedBottomBar = findViewById(R.id.bottom_bar);
 
         animatedBottomBar.setOnTabSelectListener(new AnimatedBottomBar.OnTabSelectListener() {
