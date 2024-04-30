@@ -150,17 +150,17 @@ public class loginActivity extends AppCompatActivity {
                             if(task.isSuccessful()){
                                 readUserDetails =  task.getResult().toObject(UserModel.class);
                                 if(readUserDetails!=null){
-                                   if( readUserDetails.getTextEmail().equals(mail)  && pass.equals( readUserDetails.getTextPwd())){
-                                       SharedPreferences preferences = getSharedPreferences("MyAppPrefs",MODE_PRIVATE);
-                                       SharedPreferences.Editor editor = preferences.edit();
-                                       editor.remove("email" );
-                                       editor.putString("email" , mail) ;
-                                       Toast.makeText(getApplicationContext(), "user " +mail, Toast.LENGTH_SHORT).show();
-                                       editor.apply();
-                                       Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
-                                       finish();
-                                       startActivity(intent);
-                                   }
+                                    if( readUserDetails.getTextEmail().equals(mail)  && pass.equals( readUserDetails.getTextPwd())){
+                                        SharedPreferences preferences = getSharedPreferences("MyAppPrefs",MODE_PRIVATE);
+                                        SharedPreferences.Editor editor = preferences.edit();
+                                        editor.remove("email" );
+                                        editor.putString("email" , mail) ;
+                                        Toast.makeText(getApplicationContext(), "user " +mail, Toast.LENGTH_SHORT).show();
+                                        editor.apply();
+                                        Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+                                        finish();
+                                        startActivity(intent);
+                                    }
 
                                 }
                                 progressBar.setVisibility(View.GONE);

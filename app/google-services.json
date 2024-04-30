@@ -13,7 +13,20 @@
           "package_name": "com.example.garage"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "801315022865-5tkir1i6jvhh1dqld112uniiktuq6cl1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.garage",
+            "certificate_hash": "b8bb5647b4d14027cd4cae3c046a8fe1981b01bd"
+          }
+        },
+        {
+          "client_id": "801315022865-ch455v0couca45nupmjcibeg1tgsd0oe.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBgN1qwlaX7gKFcHytNvEL0aiyGTC4mfio"
@@ -21,7 +34,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "801315022865-ch455v0couca45nupmjcibeg1tgsd0oe.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

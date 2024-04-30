@@ -224,7 +224,8 @@
                     android:textColor="@color/white"
                     android:textSize="15sp"
                     app:backgroundTint="@null"
-                    app:icon="@drawable/google"
+                    app:icon="@drawable/email"
+                    app:iconSize="20dp"
                     app:iconGravity="textEnd"
                     app:iconTint="@color/white" />
             </LinearLayout>

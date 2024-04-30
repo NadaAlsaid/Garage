@@ -4,7 +4,6 @@ import android.app.DatePickerDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.Network;
@@ -153,7 +152,7 @@ public class RegisterActivity extends AppCompatActivity {
                 textMobile = editTextRegisterMobil.getText().toString();
                 textPwd = editTextRegisterPwd.getText().toString();
                 textConPwd = editTextRegisterConfirmPwd.getText().toString();
-                String textGender;
+
 
 
                 if (TextUtils.isEmpty(textfullName)) {
@@ -265,6 +264,7 @@ public class RegisterActivity extends AppCompatActivity {
                     //enter user info to database
                     UserModel writeUserDetails = new UserModel(textfullName , textUserName , textEmail,textDoB  , textGender, textMobile , textPwd ,FirebaseUtil.currentUserId() , url);
                     setUsername(writeUserDetails);
+                    saveUserToLocalCache(textfullName , textUserName , textEmail,textDoB , textGender , textMobile , textPwd,url ,FirebaseUtil.currentUserId());
 
                 }else{
                     progressBar.setVisibility(View.GONE);
@@ -272,9 +272,7 @@ public class RegisterActivity extends AppCompatActivity {
                 }
             }
         });
-        if (FirebaseUtil.currentUserId() != null )
-            saveUserToLocalCache(textfullName , textUserName , textEmail,textDoB , textGender , textMobile , textPwd,url ,FirebaseUtil.currentUserId());
-        else
+        if (FirebaseUtil.currentUserId() == null )
             saveUserToLocalCache(textfullName , textUserName , textEmail,textDoB , textGender , textMobile , textPwd,url , null);
 
     }
@@ -300,22 +298,21 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void saveUserToLocalCache(String textfullName,String textUserName, String textEmail, String textDoB, String textGender, String textMobile, String textPwd, String url , String firebase_id){
-        Cursor cursor=  helper.get_user_info(textEmail);
-        if(cursor.getCount() == 0 ) {
-            SQLiteDatabase db = helper.getWritableDatabase();
-            ContentValues values = new ContentValues();
-            values.put(MyDatabaseHelper.COLUMN_FULL_NAME, textfullName);
-            values.put(MyDatabaseHelper.COLUMN_USER_NAME, textUserName);
-            values.put(MyDatabaseHelper.COLUMN_EMAIL, textEmail);
-            values.put(MyDatabaseHelper.COLUMN_DOB, textDoB);
-            values.put(MyDatabaseHelper.COLUMN_MOBILE, textMobile);
-            values.put(MyDatabaseHelper.COLUMN_GENDER, textGender);
-            values.put(MyDatabaseHelper.COLUMN_PWD, textPwd);
-            values.put(MyDatabaseHelper.COLUMN_PIC_URL, url);
-            values.put(MyDatabaseHelper.COLUMN_USER_ID_FIREBASE, firebase_id);
-            db.insert(MyDatabaseHelper.TABLE_NAME, null, values);
-            db.close();
-        }
+
+        SQLiteDatabase db = helper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(MyDatabaseHelper.COLUMN_FULL_NAME, textfullName);
+        values.put(MyDatabaseHelper.COLUMN_USER_NAME, textUserName);
+        values.put(MyDatabaseHelper.COLUMN_EMAIL, textEmail);
+        values.put(MyDatabaseHelper.COLUMN_DOB, textDoB);
+        values.put(MyDatabaseHelper.COLUMN_MOBILE, textMobile);
+        values.put(MyDatabaseHelper.COLUMN_GENDER, textGender);
+        values.put(MyDatabaseHelper.COLUMN_PWD, textPwd);
+        values.put(MyDatabaseHelper.COLUMN_PIC_URL, url);
+        values.put(MyDatabaseHelper.COLUMN_USER_ID_FIREBASE, firebase_id);
+        db.insert(MyDatabaseHelper.TABLE_NAME, null, values);
+        db.close();
+
     }
     private void registerNetworkCallback() {
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);

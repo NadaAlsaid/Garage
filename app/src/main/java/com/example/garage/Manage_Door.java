@@ -65,36 +65,35 @@ public class Manage_Door extends AppCompatActivity {
             doorRef.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    String tag ;
                     String value = dataSnapshot.getValue(String.class);
+
                     if(value.equalsIgnoreCase("Close")){
                         IsClosed =true;
                         doorSwitch.setBackgroundResource(R.color.red);
                         doorSwitch.setChecked(!(IsClosed));
-                        tag  ="you open door" ;
-                        Logs spotLog=new Logs(tag ,stamp);
-                        LocalTime currentTime = LocalTime.now();
-                        spotLog.CreateLog(email , tag,String.valueOf(currentTime));
+
                     }else if (value.equalsIgnoreCase("open")){
                         IsClosed = false;
                         doorSwitch.setBackgroundResource(R.color.teal_700);
                         doorSwitch.setChecked(!(IsClosed));
-                        tag  ="you close door" ;
-                        Logs spotLog=new Logs(tag ,stamp);
-                        LocalTime currentTime = LocalTime.now();
-                        spotLog.CreateLog(email , tag,String.valueOf(currentTime));
+
                     }else {
                         Toast.makeText(Manage_Door.this, "Error", Toast.LENGTH_SHORT).show();
                     }
                     doorSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                         @Override
                         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                            String tag ;
                             if(isChecked){
                                 Toast.makeText(getApplicationContext(), "The Door is open", Toast.LENGTH_SHORT).show();
                                 doorSwitch.setBackgroundResource(R.color.teal_700);
                                 doorRef.setValue("open"); // Update the door's status in Firebase
                                 SpotsDbHelper spotsDbHelper = new SpotsDbHelper(Manage_Door.this);
                                 Spot ss= spotsDbHelper.get_spot(email);
+                                tag  ="you open door" ;
+                                Logs spotLog=new Logs(tag ,stamp);
+                                LocalTime currentTime = LocalTime.now();
+                                spotLog.CreateLog(email , tag,String.valueOf(currentTime));
                                 if (ss != null){
                                     updateSpotAvailabilityInFirebase(ss);
                                     Toast.makeText(Manage_Door.this, "User" + email+ " coming out", Toast.LENGTH_SHORT).show();
@@ -104,6 +103,10 @@ public class Manage_Door extends AppCompatActivity {
                                 Toast.makeText(getApplicationContext(), "The Door is closed", Toast.LENGTH_SHORT).show();
                                 doorSwitch.setBackgroundResource(R.color.red);
                                 doorRef.setValue("Close"); // Update the door's status in Firebase
+                                tag  ="you close door" ;
+                                Logs spotLog=new Logs(tag ,stamp);
+                                LocalTime currentTime = LocalTime.now();
+                                spotLog.CreateLog(email , tag,String.valueOf(currentTime));
                             }
                         }
                     });
