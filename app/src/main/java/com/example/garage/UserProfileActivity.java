@@ -115,6 +115,10 @@ public class UserProfileActivity extends AppCompatActivity {
                     SharedPreferences.Editor editor = preferences.edit();
                     editor.putString("remember", "false");
                     editor.apply();
+                    preferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+                    editor = preferences.edit();
+                    editor.putString("email", "");
+                    editor.apply();
                     intent = new Intent(getApplicationContext(), WelcomeActivity.class);
                     startActivity(intent);
                 }else if (tab1.getId() == R.id.tab_home) {
@@ -193,6 +197,12 @@ public class UserProfileActivity extends AppCompatActivity {
 
 
     private void readUserDetailsFromFirebase() {
+//        FirebaseFirestore db = FirebaseFirestore.getInstance();
+//        CollectionReference usersRef = db.collection("users");
+//        Query query = usersRef.whereEqualTo("username", "desired_username");
+////        Toast.makeText(getApplicationContext(),  "  "+query. , Toast.LENGTH_LONG).show();
+
+
         FirebaseUtil.currentUserDetails().get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {

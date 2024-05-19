@@ -65,8 +65,8 @@ public class Subscription extends AppCompatActivity {
                     price = spots.getPrice();
 //                    Toast.makeText(getApplicationContext(), spots.toString() , Toast.LENGTH_SHORT).show();
                     spot = spots.getSpot_id();
-                    if(price != null) {
-                        price = "Total Price : " + price + " 👌";
+                    if(!price.equals(" ") ) {
+                        price = "Total Price : " + price + "$ 👌";
                         subscriptionTextView.setText(price);
                         spot = "You stop at "+ spot +" spot" ;
                         spotTextView.setText(spot);
@@ -78,6 +78,11 @@ public class Subscription extends AppCompatActivity {
                             boolean flag= subscriptionDbHelper.updateSpot(spots.getSpot_id() , mail , spots.getPrice()) ;
 //                            Toast.makeText(getApplicationContext(), "Please " + flag, Toast.LENGTH_SHORT).show();
                         }
+                    }else{
+                        price = "Total Price : 0$ 👌";
+                        subscriptionTextView.setText(price);
+                        spot ="In which spot did you park 🤔";
+                        spotTextView.setText(spot);
                     }
 
                 }
@@ -121,6 +126,11 @@ public class Subscription extends AppCompatActivity {
                     SharedPreferences.Editor editor = preferences.edit();
                     editor.putString("remember", "false");
                     editor.apply();
+                    preferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+                    editor = preferences.edit();
+                    editor.putString("email", "");
+                    editor.apply();
+
                     intent = new Intent(getApplicationContext(), WelcomeActivity.class);
                     startActivity(intent);
                 }else if (tab1.getId() == R.id.tab_home) {

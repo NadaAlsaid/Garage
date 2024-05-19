@@ -144,6 +144,7 @@ public class loginActivity extends AppCompatActivity {
                 LoginNetworkCallback();
                 if (isNetworkConnected){
                     readUserDetails = new UserModel();
+
                     FirebaseUtil.currentUserDetails().get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<DocumentSnapshot> task) {

@@ -6,7 +6,7 @@ class Spot_firebase {
     public String email ;
     public String time_in;
     public String time_out;
-
+    public String password ;
 }
 public class Spot {
     private int spot_id ;

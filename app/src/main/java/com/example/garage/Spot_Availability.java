@@ -24,7 +24,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.time.LocalTime;
 import java.util.ArrayList;
 
 import nl.joery.animatedbottombar.AnimatedBottomBar;
@@ -78,18 +77,19 @@ public class Spot_Availability extends AppCompatActivity {
                         Spot_firebase spot = spotSnapshot.getValue(Spot_firebase.class);
                         Spot spot_normal = new Spot();
                         spot_normal.setSpot_id(Integer.parseInt(spot.spot_id));
-                        if (spot != null && spot.is_available != null) {
+                        if (spot != null) {
                             if (spot.is_available.equalsIgnoreCase("true")) {
                                 spot_normal.setSpot_availablility(true);
 
                             } else if (spot.is_available.equalsIgnoreCase("false")) {
                                 spot_normal.setSpot_availablility(false);
 
-                            } else {
-                                // Handle unexpected values (optional)
-                                spot_normal.setSpot_availablility(false);  // Set a default value (optional)
-                                Toast.makeText(Spot_Availability.this, "spot "+spot_normal.getSpot_id()+"Has problem in availability",Toast.LENGTH_SHORT).show();
                             }
+//                            else {
+//                                // Handle unexpected values (optional)
+//                                spot_normal.setSpot_availablility(false);  // Set a default value (optional)
+//                                Toast.makeText(Spot_Availability.this, "spot "+spot_normal.getSpot_id()+"Has problem in availability",Toast.LENGTH_SHORT).show();
+//                            }
                             spot_normal.setUser_id(spot.email);
                             spot_normal.setTime_in(spot.time_in);
                             spot_normal.setTime_out(spot.time_out);
@@ -142,6 +142,10 @@ public class Spot_Availability extends AppCompatActivity {
                     SharedPreferences preferences = getSharedPreferences("checkedbox", MODE_PRIVATE);
                     SharedPreferences.Editor editor = preferences.edit();
                     editor.putString("remember", "false");
+                    editor.apply();
+                    preferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+                    editor = preferences.edit();
+                    editor.putString("email", "");
                     editor.apply();
                     intent = new Intent(getApplicationContext(), WelcomeActivity.class);
                     startActivity(intent);

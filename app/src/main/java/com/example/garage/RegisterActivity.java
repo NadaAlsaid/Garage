@@ -272,8 +272,6 @@ public class RegisterActivity extends AppCompatActivity {
                 }
             }
         });
-        if (FirebaseUtil.currentUserId() == null )
-            saveUserToLocalCache(textfullName , textUserName , textEmail,textDoB , textGender , textMobile , textPwd,url , null);
 
     }
 
@@ -326,8 +324,6 @@ public class RegisterActivity extends AppCompatActivity {
                     isNetworkConnected = true;
                     Toast.makeText(RegisterActivity.this, "Internet connection available.", Toast.LENGTH_SHORT).show();
 
-                    // Send user information to Firebase database when internet connection is restored
-                    sendUserInfoToFirebase();
                 }
 
                 @RequiresApi(api = Build.VERSION_CODES.M)

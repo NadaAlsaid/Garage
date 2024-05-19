@@ -136,6 +136,10 @@ public class TemperatureActivity extends AppCompatActivity {
                     SharedPreferences.Editor editor = preferences.edit();
                     editor.putString("remember", "false");
                     editor.apply();
+                    preferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+                    editor = preferences.edit();
+                    editor.putString("email", "");
+                    editor.apply();
                     intent = new Intent(getApplicationContext(), WelcomeActivity.class);
                     startActivity(intent);
                 }else if (tab1.getId() == R.id.tab_home) {

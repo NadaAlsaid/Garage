@@ -1,12 +1,10 @@
 package com.example.garage;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.SearchView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -16,7 +14,6 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
@@ -45,6 +42,7 @@ public class HomeActivity extends AppCompatActivity  {
         items.add(new Item("Check spots availability", R.drawable.spots));
         items.add(new Item("Check Temperature", R.drawable.temp));
         items.add(new Item("Subscriptions", R.drawable.subscription));
+        items.add(new Item("Password", R.drawable.password_generated));
         Gfeatures adapter = new Gfeatures(this, items);
 
         adapter.setOnItemClickListener(new Gfeatures.OnItemClickListener() {
@@ -63,6 +61,9 @@ public class HomeActivity extends AppCompatActivity  {
                     startActivity(intent);
                 } else if (clickedItem.getName() == "Subscriptions") {
                     Intent intent = new Intent(getApplicationContext(), Subscription.class);
+                    startActivity(intent);
+                }else if (clickedItem.getName() == "Password") {
+                    Intent intent = new Intent(getApplicationContext(), PasswordToLeave.class);
                     startActivity(intent);
                 }
             }
@@ -88,6 +89,10 @@ public class HomeActivity extends AppCompatActivity  {
                     SharedPreferences preferences = getSharedPreferences("checkedbox", MODE_PRIVATE);
                     SharedPreferences.Editor editor = preferences.edit();
                     editor.putString("remember", "false");
+                    editor.apply();
+                    preferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+                    editor = preferences.edit();
+                    editor.putString("email", "");
                     editor.apply();
                     intent = new Intent(getApplicationContext(), WelcomeActivity.class);
                     startActivity(intent);
@@ -123,6 +128,7 @@ public class HomeActivity extends AppCompatActivity  {
             SharedPreferences.Editor editor = preferences.edit();
             editor.putString("remember", "false");
             editor.apply();
+
             intent = new Intent(getApplicationContext(), WelcomeActivity.class);
             startActivity(intent);
         }

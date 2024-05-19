@@ -119,6 +119,7 @@ public class Spot_adapter extends RecyclerView.Adapter<Spot_adapter.SpotViewHold
             updates.put("is_available", "false");
             updates.put("email", currentUserId);
             updates.put("time_in", String.valueOf(currentTime));
+            updates.put("password" , "false");
             spotRef.updateChildren(updates, new DatabaseReference.CompletionListener() {
                 @Override
                 public void onComplete(@Nullable DatabaseError error, @NonNull DatabaseReference ref) {

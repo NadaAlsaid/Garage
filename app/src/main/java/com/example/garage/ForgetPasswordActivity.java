@@ -2,13 +2,9 @@ package com.example.garage;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.media.SoundPool;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
 import android.text.TextUtils;
-import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
@@ -26,14 +22,8 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.Firebase;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.firestore.DocumentSnapshot;
 
 public class ForgetPasswordActivity extends AppCompatActivity {
     private EditText editTextPwdResetEmail;
@@ -158,34 +148,34 @@ public class ForgetPasswordActivity extends AppCompatActivity {
         // Replace this with your own implementation based on your Firebase database setup
         FirebaseUser currentUser = authProfile.getCurrentUser();
         readUserDetails = new UserModel();
-        FirebaseUtil.currentUserDetails().get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if(task.isSuccessful()){
-                    readUserDetails =  task.getResult().toObject(UserModel.class);
-                    if(readUserDetails!=null){
-                        readUserDetails.setTextPwd(newPassword);
-                        currentUser.delete() ;
-                        FirebaseUtil.currentUserDetails().set(readUserDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-
-                                if(task.isSuccessful()){
-                                    Toast.makeText(getApplicationContext() , "well done!" , Toast.LENGTH_LONG).show();
-                                    Intent intent = new Intent(getApplicationContext(), loginActivity.class);
-                                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                    startActivity(intent);
-                                    finish();
-                                }else{
-                                    Toast.makeText(getApplicationContext(), "Check your network connection", Toast.LENGTH_LONG).show();
-                                }
-                            }
-                        });
-                    }
-                    progressBar.setVisibility(View.GONE);
-                }
-            }
-        });
+//        FirebaseUtil.currentUserDetails().get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+//            @Override
+//            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+//                if(task.isSuccessful()){
+//                    readUserDetails =  task.getResult().toObject(UserModel.class);
+//                    if(readUserDetails!=null){
+//                        readUserDetails.setTextPwd(newPassword);
+//                        currentUser.delete() ;
+//                        FirebaseUtil.currentUserDetails().set(readUserDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
+//                            @Override
+//                            public void onComplete(@NonNull Task<Void> task) {
+//
+//                                if(task.isSuccessful()){
+//                                    Toast.makeText(getApplicationContext() , "well done!" , Toast.LENGTH_LONG).show();
+//                                    Intent intent = new Intent(getApplicationContext(), loginActivity.class);
+//                                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+//                                    startActivity(intent);
+//                                    finish();
+//                                }else{
+//                                    Toast.makeText(getApplicationContext(), "Check your network connection", Toast.LENGTH_LONG).show();
+//                                }
+//                            }
+//                        });
+//                    }
+//                    progressBar.setVisibility(View.GONE);
+//                }
+//            }
+//        });
 
 //        if (currentUser != null) {
 //            String userId = currentUser.getUid();
