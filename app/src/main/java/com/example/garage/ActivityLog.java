@@ -83,7 +83,7 @@ public class ActivityLog extends AppCompatActivity {
 
                                 long test = logger.insertEvent(log.getEmail(), log.getAction(), log.getTimeStamp());
 
-                                Toast.makeText(ActivityLog.this,  ""+test, Toast.LENGTH_SHORT).show();
+//                                Toast.makeText(ActivityLog.this,  ""+test, Toast.LENGTH_SHORT).show();
 
                             }
                         }
@@ -106,7 +106,7 @@ public class ActivityLog extends AppCompatActivity {
 
             Cursor cursor = logger.getLogsByEmail(mail);
             if(cursor.getCount() > 0 ) {
-                Toast.makeText(ActivityLog.this, ""+cursor.getCount(), Toast.LENGTH_SHORT).show();
+//                Toast.makeText(ActivityLog.this, ""+cursor.getCount(), Toast.LENGTH_SHORT).show();
                 logs.clear();
                 if (cursor.moveToFirst()) {
                     do {
@@ -158,7 +158,7 @@ public class ActivityLog extends AppCompatActivity {
 
                 }
                 else{
-                    Toast.makeText(ActivityLog.this, searc.getText().toString(), Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(ActivityLog.this, searc.getText().toString(), Toast.LENGTH_SHORT).show();
 
                     Cursor cursor= logger.search(sqLiteDatabase , searc.getText().toString());
                     logs.clear();

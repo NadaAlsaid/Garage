@@ -9,6 +9,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -28,7 +29,11 @@ import androidx.core.view.WindowInsetsCompat;
 import com.github.dhaval2404.imagepicker.ImagePicker;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import nl.joery.animatedbottombar.AnimatedBottomBar;
 
@@ -38,7 +43,7 @@ public class UserProfileActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private String fullName, email, doB, gender, mobile, url;
     private ImageView profileImageView;
-    String userEmail ;
+    public String userEmail ;
     private Button logoutButton;
     AnimatedBottomBar animatedBottomBar;
     @RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
@@ -66,6 +71,9 @@ public class UserProfileActivity extends AppCompatActivity {
         logoutButton = findViewById(R.id.logout_button);
         profileImageView = findViewById(R.id.imageView_profile_dp);
         readUserDetails = new UserModel();
+        SharedPreferences sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+        userEmail = sharedPreferences.getString("email", "");
+//        Log.d("UserProfileActivity", "Retrieved email: " + userEmail);
 
 
         profileImageView.setOnClickListener(new View.OnClickListener() {
@@ -127,117 +135,79 @@ public class UserProfileActivity extends AppCompatActivity {
                     startActivity(intent);
                 }
             }
-
             @Override
             public void onTabReselected(int i, @NonNull AnimatedBottomBar.Tab tab) {
 
             }
         });
-
-
     }
-
-//    private void showUserProfile() {
-//
-//        FirebaseUtil.currentUserDetails().get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-//            @Override
-//            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-//                if(task.isSuccessful()){
-//                    readUserDetails =  task.getResult().toObject(UserModel.class);
-//                    if(readUserDetails!=null){
-//                        fullName = readUserDetails.getTextfullName();
-//                        email = readUserDetails.getTextEmail();
-//                        doB = readUserDetails.getTextDoB();
-//                        gender = readUserDetails.getTextGender();
-//                        mobile = readUserDetails.getTextMobile();
-//                        String url = readUserDetails.getUrl() ;
-//                        textViewWelcome.setText("welcome, " + readUserDetails.getTextUserName() + " !");
-//                        textViewFullName.setText(fullName);
-//                        textViewEmail.setText(email);
-//                        textViewDoB.setText(doB);
-//                        textViewGender.setText(gender);
-//                        textViewMobile.setText(mobile);
-//                        if(url != null) {
-//                            profileImageUri = Uri.parse(url) ;
-//
-////                            profileImageView.setImageURI(profileImageUri);
-//                        }
-////                        Toast.makeText(getApplicationContext() , "heeeeeeeelp" , Toast.LENGTH_LONG).show();
-//                    }
-//                    progressBar.setVisibility(View.GONE);
-//                }
-//            }
-//        });
-//
-//
-//    }
-
-
     private void showUserProfile() {
         SharedPreferences sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
         userEmail = sharedPreferences.getString("email", "");
         if (isConnectedToInternet()) {
-            readUserDetailsFromFirebase();
+            readUserDetailsFromFirebase(userEmail);
+            Toast.makeText(this, "email : " + userEmail, Toast.LENGTH_SHORT).show();
         } else {
             readUserDetailsFromLocalDatabase();
         }
 
     }
-
-
-
-
     private boolean isConnectedToInternet() {
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
         return networkInfo != null && networkInfo.isConnected();
     }
 
+    private void readUserDetailsFromFirebase(String userEmail) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference usersRef = db.collection("users");
+        Query query = usersRef.whereEqualTo("textEmail", userEmail);
 
-
-
-    private void readUserDetailsFromFirebase() {
-//        FirebaseFirestore db = FirebaseFirestore.getInstance();
-//        CollectionReference usersRef = db.collection("users");
-//        Query query = usersRef.whereEqualTo("username", "desired_username");
-////        Toast.makeText(getApplicationContext(),  "  "+query. , Toast.LENGTH_LONG).show();
-
-
-        FirebaseUtil.currentUserDetails().get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
-                    readUserDetails = task.getResult().toObject(UserModel.class);
-                    if (readUserDetails != null) {
-                        fullName = readUserDetails.getTextfullName();
-                        email = readUserDetails.getTextEmail();
-                        doB = readUserDetails.getTextDoB();
-                        gender = readUserDetails.getTextGender();
-                        mobile = readUserDetails.getTextMobile();
-//                        Toast.makeText(getApplicationContext(),  "  "+ readUserDetails.getUrl() , Toast.LENGTH_LONG).show();
-                        url = readUserDetails.getUrl();
-                        textViewWelcome.setText("Welcome, " + readUserDetails.getTextUserName() + "!");
-                        textViewFullName.setText(fullName);
-                        textViewEmail.setText(email);
-                        textViewDoB.setText(doB);
-                        textViewGender.setText(gender);
-                        textViewMobile.setText(mobile);
-                        if (url != null) {
-//                            profileImageUri = Uri.parse(url);
-                            profileImageView.setImageURI(Uri.parse(url));
-                        }
+                    QuerySnapshot querySnapshot = task.getResult();
+                    if (querySnapshot.isEmpty()) {
+                        Toast.makeText(getApplicationContext(), "User not found", Toast.LENGTH_LONG).show();
+                        return;
                     }
-                    progressBar.setVisibility(View.GONE);
+
+                    // Get the first document (assuming there should be only one user with that email)
+                    DocumentSnapshot userDoc = querySnapshot.getDocuments().get(0);
+                    String fullName = userDoc.getString("textfullName");
+                    String email = userDoc.getString("textEmail");
+                    String doB = userDoc.getString("textDoB");
+                    String gender = userDoc.getString("textGender");
+                    String mobile = userDoc.getString("textMobile");
+                    String url = userDoc.getString("url");
+
+                    // Log retrieved data
+                    Log.d("UserProfileActivity", "Full Name: " + fullName);
+                    Log.d("UserProfileActivity", "Email: " + email);
+                    Log.d("UserProfileActivity", "DOB: " + doB);
+                    Log.d("UserProfileActivity", "Gender: " + gender);
+                    Log.d("UserProfileActivity", "Mobile: " + mobile);
+                    Log.d("UserProfileActivity", "URL: " + url);
+                    // Update UI with retrieved data
+                    textViewWelcome.setText("Welcome, " + userDoc.getString("textUserName") + "!");
+                    textViewFullName.setText(fullName);
+                    textViewEmail.setText(email);
+                    textViewDoB.setText(doB);
+                    textViewGender.setText(gender);
+                    textViewMobile.setText(mobile);
+                    if (url != null) {
+                        profileImageView.setImageURI(Uri.parse(url));
+                    }
+                } else {
+                    Log.w("UserProfileActivity", "Error getting documents.", task.getException());
+                    Toast.makeText(getApplicationContext(), "Error getting user details", Toast.LENGTH_LONG).show();
                 }
+                progressBar.setVisibility(View.GONE);
             }
         });
     }
-
-
-
-
     private void readUserDetailsFromLocalDatabase() {
-
         MyDatabaseHelper databaseHelper = new MyDatabaseHelper(this);
         Toast.makeText(getApplicationContext(), userEmail, Toast.LENGTH_LONG).show();
 
@@ -268,12 +238,9 @@ public class UserProfileActivity extends AppCompatActivity {
                 profileImageView.setImageURI(Uri.parse(url));
             }
         }
-
         cursor.close();
         progressBar.setVisibility(View.GONE);
     }
-
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -282,9 +249,6 @@ public class UserProfileActivity extends AppCompatActivity {
         if (requestCode == RC_CHOOSE_IMAGE && resultCode == RESULT_OK) {
             profileImageUri = data.getData();
             profileImageView.setImageURI(profileImageUri);
-
         }
     }
-
-
 }
